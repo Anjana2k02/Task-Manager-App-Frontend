@@ -12,8 +12,8 @@ export default function User() {
     
     <div>
       
-      <h1>User</h1>
-      <p>Welcome to the User page</p>
+      <h1>User List</h1>
+      <p>View All users have registered</p>
       <UserTable />
       
     </div>
