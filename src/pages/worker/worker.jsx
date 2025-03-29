@@ -3,6 +3,7 @@ import WorkerTable from './list'; // Assuming list.js contains the WorkerTable c
 import { ThemeProvider } from '@emotion/react';
 import customTheme from '../../theme/theme';
 
+
 export default function Worker() {
   return (
     <ThemeProvider theme={customTheme}>
