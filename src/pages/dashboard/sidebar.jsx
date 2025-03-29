@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Collapse, IconButton, Chip } from '@mui/material';
-
 import { Home as HomeIcon, AccountCircle as AccountIcon, Description as DescriptionIcon, CalendarMonth as CalendarIcon, Article as ArticleIcon, KeyboardArrowDown as ArrowDownIcon, KeyboardArrowUp as ArrowUpIcon, Close as CloseIcon } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Sidebarmain = ({ open, onClose }) => {
   const [expandedMenus, setExpandedMenus] = useState({});
-
+  const navigate = useNavigate(); // ✅ React Router's navigate function
 
   const handleToggle = (menu) => {
     setExpandedMenus((prev) => ({
@@ -15,20 +14,23 @@ const Sidebarmain = ({ open, onClose }) => {
     }));
   };
 
+  const handleNavigation = (path) => {
+    if (path) navigate(path); // ✅ Correctly navigate programmatically
+  };
+
   const menuItems = [
-    { text: 'Dashboard', icon: <HomeIcon />, path: '/' },
+    { text: 'Dashboard', icon: <HomeIcon />, path: '/admin/dashboard' },
     {
       text: 'User',
       icon: <AccountIcon />,
       hasSubmenu: true,
       submenuKey: 'users',
       submenu: [
-
+        { text: 'Users', path: '/user/list' },
         { text: 'Create', path: '/user/create' },
         { text: 'Manage', path: '/user/manage' }
       ]
     },
-
     {
       text: 'Tasks',
       icon: <AccountIcon />,
@@ -73,7 +75,9 @@ const Sidebarmain = ({ open, onClose }) => {
         {menuItems.map((item, index) => (
           <React.Fragment key={index}>
             <ListItem disablePadding>
-              <ListItemButton onClick={() => item.hasSubmenu && handleToggle(item.submenuKey)} component={item.path ? Link : undefined} to={item.path || '#'}>
+              <ListItemButton
+                onClick={() => item.hasSubmenu ? handleToggle(item.submenuKey) : handleNavigation(item.path)}
+              >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
                 {item.hasSubmenu && (expandedMenus[item.submenuKey] ? <ArrowUpIcon /> : <ArrowDownIcon />)}

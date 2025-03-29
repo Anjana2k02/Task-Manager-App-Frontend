@@ -9,7 +9,7 @@ import User from "../pages/user/user";
 const UserList = lazy(() => import("../pages/user/user"));
 const UserCreate = lazy(() => import("../pages/user/create"));
 const UserManage = lazy(() => import("../pages/user/manage"));
-
+const AdminDashboard = lazy(() => import("../pages/adminDashboard/admin-view"));
 
 const Loading = () => (
   <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
@@ -21,8 +21,10 @@ export default function Paths() { // Make sure the function name matches the exp
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
+
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         {/* user  */}
-        <Route path="/users" element={< UserList/>} />
+        <Route path="/user/list" element={<UserList />} />
         <Route path="/user/create" element={<UserCreate />} />
         <Route path="/user/manage" element={<UserManage />} />
 
