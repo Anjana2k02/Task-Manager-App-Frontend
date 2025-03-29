@@ -26,11 +26,13 @@ const Sidebarmain = ({ open, onClose }) => {
       hasSubmenu: true,
       submenuKey: 'users',
       submenu: [
+
         { text: 'Users', path: '/user/list' },
         { text: 'Create', path: '/user/create' },
         { text: 'Manage', path: '/user/manage' }
       ]
     },
+
     {
       text: 'Tasks',
       icon: <AccountIcon />,
@@ -42,6 +44,20 @@ const Sidebarmain = ({ open, onClose }) => {
         { text: 'Task Overview', path: '#' }
       ]
     },
+
+    {
+      text: 'Supervisor',
+      icon: <AccountIcon />,
+      hasSubmenu: true,
+      submenuKey: 'supervisors',
+      submenu: [
+
+        { text: 'Manage', path: '/supervisor/list' },
+        { text: 'Create', path: '/supervisor/create' },
+        { text: 'Manage', path: '/supervisor/manage' }
+      ]
+    },
+
     {
       text: 'Admin',
       icon: <AccountIcon />,

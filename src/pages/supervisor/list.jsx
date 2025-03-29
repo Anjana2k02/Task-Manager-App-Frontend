@@ -21,6 +21,7 @@ const SupervisorTable = () => {
       try {
         const data = await getFetcher(enpoints.supervisor.viewAll);
         setSupervisors(data);
+        
       } catch (error) {
         console.error("Error fetching supervisors:", error);
       }
@@ -38,6 +39,7 @@ const SupervisorTable = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+console.log("dsdsgsdshs", supervisors);
 
   return (
     <ThemeProvider theme={theme}>

@@ -195,8 +195,8 @@ export default function SupervisorCreate() {
                 margin="normal"
                 size="medium"
               >
-                <MenuItem value="Active">Active</MenuItem>
-                <MenuItem value="Inactive">Inactive</MenuItem>
+                <MenuItem value="true">Active</MenuItem>
+                <MenuItem value="false">Inactive</MenuItem>
               </TextField>
             </Grid>
           </Grid>
