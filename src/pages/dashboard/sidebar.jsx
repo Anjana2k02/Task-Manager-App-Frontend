@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Collapse, IconButton, Chip } from '@mui/material';
-import { Home as HomeIcon, AccountCircle as AccountIcon, Description as DescriptionIcon, CalendarMonth as CalendarIcon, Article as ArticleIcon, KeyboardArrowDown as ArrowDownIcon, KeyboardArrowUp as ArrowUpIcon, Close as CloseIcon } from '@mui/icons-material';
+import { Home as HomeIcon, AccountCircle as AccountIcon, Description as DescriptionIcon, CalendarMonth as CalendarIcon, Article as ArticleIcon, KeyboardArrowDown as ArrowDownIcon, KeyboardArrowUp as ArrowUpIcon, Close as CloseIcon, Work as WorkIcon } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Sidebarmain = ({ open, onClose }) => {
   const [expandedMenus, setExpandedMenus] = useState({});
-  const navigate = useNavigate(); // ✅ React Router's navigate function
+  const navigate = useNavigate();
 
   const handleToggle = (menu) => {
     setExpandedMenus((prev) => ({
@@ -15,7 +15,7 @@ const Sidebarmain = ({ open, onClose }) => {
   };
 
   const handleNavigation = (path) => {
-    if (path) navigate(path); // ✅ Correctly navigate programmatically
+    if (path) navigate(path);
   };
 
   const menuItems = [
@@ -29,6 +29,17 @@ const Sidebarmain = ({ open, onClose }) => {
         { text: 'Users', path: '/user/list' },
         { text: 'Create', path: '/user/create' },
         { text: 'Manage', path: '/user/manage' }
+      ]
+    },
+    {
+      text: 'Worker', 
+      icon: <WorkIcon />, 
+      hasSubmenu: true,
+      submenuKey: 'workers',
+      submenu: [
+        { text: 'Workers', path: '/worker/list' },  
+        { text: 'Create', path: '/worker/create' },
+        { text: 'Manage', path: '/worker/manage' }
       ]
     },
     {
