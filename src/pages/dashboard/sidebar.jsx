@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Collapse, IconButton, Chip } from '@mui/material';
-import { Home as HomeIcon, AccountCircle as AccountIcon, Description as DescriptionIcon, CalendarMonth as CalendarIcon, Article as ArticleIcon, KeyboardArrowDown as ArrowDownIcon, KeyboardArrowUp as ArrowUpIcon, Close as CloseIcon } from '@mui/icons-material';
+import { Home as HomeIcon, AccountCircle as AccountIcon, Description as DescriptionIcon, CalendarMonth as CalendarIcon, Article as ArticleIcon, KeyboardArrowDown as ArrowDownIcon, KeyboardArrowUp as ArrowUpIcon, Close as CloseIcon, SupervisorAccount as SupervisorAccountIcon } from '@mui/icons-material'; // Import SupervisorAccountIcon
 import { Link } from 'react-router-dom'; // Import Link for routing
 
 const Sidebarmain = ({ open, onClose }) => {
   const [expandedMenus, setExpandedMenus] = useState({
     users: true,
+    supervisor: false, // Added supervisor to the state
     subMenu1: true,
     subMenu2: false,
     account: false,
@@ -32,9 +33,20 @@ const Sidebarmain = ({ open, onClose }) => {
       hasSubmenu: true,
       submenuKey: 'users',
       submenu: [
-        { text: 'List', path: '/users' },  // Use Link to navigate
+        { text: 'List', path: '/users' },  
         { text: 'Create', path: '/user/create' },
         { text: 'Manage', path: '/user/manage' }
+      ]
+    },
+    { 
+      text: 'Supervisor', 
+      icon: <SupervisorAccountIcon />,  // Add the SupervisorAccountIcon here
+      hasSubmenu: true,
+      submenuKey: 'supervisor',  // Added unique key for the supervisor submenu
+      submenu: [
+        { text: 'List', path: '/supervisors' },  // Supervisor List
+        { text: 'Create', path: '/supervisor/create' }, // Supervisor Create
+        { text: 'Manage', path: '/supervisor/manage' } // Supervisor Manage
       ]
     },
     { 
