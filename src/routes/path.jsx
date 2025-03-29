@@ -14,6 +14,7 @@ const RequestForm = lazy(() => import("../pages/admin/requestcreate"));
 const RequestUpdate = lazy(() => import("../pages/admin/requestupdate"));
 const RequestDelete = lazy(() => import("../pages/admin/requestdelete"));
 
+const AdminDashboard2 = lazy(() => import("../pages/adminDashboard/admin-view"));
 
 const Loading = () => (
   <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
@@ -25,14 +26,16 @@ export default function Paths() { // Make sure the function name matches the exp
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
+
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         {/* user  */}
-        <Route path="/users" element={< UserList/>} />
+        <Route path="/user/list" element={<UserList />} />
         <Route path="/user/create" element={<UserCreate />} />
         <Route path="/user/manage" element={<UserManage />} />
 
 
         {/* admin */}
-        <Route path="/admin/admindaashboard" element={<AdminDashboard />} /> 
+        <Route path="/admin/admindaashboard" element={<AdminDashboard2 />} /> 
         <Route path="/admin/requestlist" element={<TaskReassignList />} /> 
         <Route path="/admin/requestcreate" element={<RequestForm />} />
         <Route path="/admin/requestupdate" element={<RequestUpdate />} />
