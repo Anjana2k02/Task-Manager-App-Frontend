@@ -82,7 +82,7 @@ const Sidebarmain = ({ open, onClose }) => {
       hasSubmenu: true,
       submenuKey: 'admin',
       submenu: []
-
+// merge
     },
     { text: 'Projects', icon: <DescriptionIcon />, path: '/projects' },
     { text: 'Calendar', icon: <CalendarIcon />, path: '#', badge: 'New' },
