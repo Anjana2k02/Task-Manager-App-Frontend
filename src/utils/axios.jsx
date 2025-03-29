@@ -75,12 +75,12 @@ export const fetcher = async (args) => {
     },
 
     supervisor: {
-      create: "/user/create",
-      update: "/user/update",
-      delete: "/user/delete/{id}",
-      view: "/user/view/{id}",
-      viewAll: "/user/view/all",
-      report: "/user/report",
+      create: "/supervisor/create",
+      update: "/supervisor/update",
+      delete: "/supervisor/delete/{id}",
+      view: "/supervisor/view/{id}",
+      viewAll: "/supervisor/view/all",
+      report: "/supervisor/report",
     }
 
 
