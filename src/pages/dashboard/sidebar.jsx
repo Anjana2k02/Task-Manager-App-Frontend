@@ -46,9 +46,7 @@ const Sidebarmain = ({ open, onClose }) => {
       hasSubmenu: true,
       submenuKey: 'admin',
       submenu: [
-        { text: 'Settings', path: '#' },
-        { text: 'Permissions', path: '#' }
-      ]
+
     },
     { text: 'Projects', icon: <DescriptionIcon />, path: '/projects' },
     { text: 'Calendar', icon: <CalendarIcon />, path: '#', badge: 'New' },
