@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Collapse, IconButton, Chip } from '@mui/material';
+
 import { Home as HomeIcon, AccountCircle as AccountIcon, Description as DescriptionIcon, CalendarMonth as CalendarIcon, Article as ArticleIcon, KeyboardArrowDown as ArrowDownIcon, KeyboardArrowUp as ArrowUpIcon, Close as CloseIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 
 const Sidebarmain = ({ open, onClose }) => {
   const [expandedMenus, setExpandedMenus] = useState({});
+
 
   const handleToggle = (menu) => {
     setExpandedMenus((prev) => ({
@@ -21,11 +23,12 @@ const Sidebarmain = ({ open, onClose }) => {
       hasSubmenu: true,
       submenuKey: 'users',
       submenu: [
-        { text: 'List', path: '/users' },
+
         { text: 'Create', path: '/user/create' },
         { text: 'Manage', path: '/user/manage' }
       ]
     },
+
     {
       text: 'Tasks',
       icon: <AccountIcon />,
