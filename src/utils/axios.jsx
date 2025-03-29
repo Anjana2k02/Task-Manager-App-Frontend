@@ -81,7 +81,11 @@ export const fetcher = async (args) => {
       view: "/user/view/{id}",
       viewAll: "/user/view/all",
       report: "/user/report",
+
     },
+
+  
+
 
     worker: {
       create: "/worker/create",

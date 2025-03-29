@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Collapse, IconButton, Chip } from '@mui/material';
-import { Home as HomeIcon, AccountCircle as AccountIcon, Description as DescriptionIcon, CalendarMonth as CalendarIcon, Article as ArticleIcon, KeyboardArrowDown as ArrowDownIcon, KeyboardArrowUp as ArrowUpIcon, Close as CloseIcon, Work as WorkIcon } from '@mui/icons-material';
+
+import { Home as HomeIcon, AccountCircle as AccountIcon, Description as DescriptionIcon, CalendarMonth as CalendarIcon, Article as ArticleIcon, KeyboardArrowDown as ArrowDownIcon, KeyboardArrowUp as ArrowUpIcon, Close as CloseIcon } from '@mui/icons-material';
+
 import { Link, useNavigate } from 'react-router-dom';
 
 const Sidebarmain = ({ open, onClose }) => {
   const [expandedMenus, setExpandedMenus] = useState({});
+
   const navigate = useNavigate();
+
 
   const handleToggle = (menu) => {
     setExpandedMenus((prev) => ({
@@ -15,7 +19,9 @@ const Sidebarmain = ({ open, onClose }) => {
   };
 
   const handleNavigation = (path) => {
+
     if (path) navigate(path);
+
   };
 
   const menuItems = [
@@ -31,6 +37,7 @@ const Sidebarmain = ({ open, onClose }) => {
         { text: 'Manage', path: '/user/manage' }
       ]
     },
+
     {
       text: 'Worker', 
       icon: <WorkIcon />, 
@@ -42,6 +49,7 @@ const Sidebarmain = ({ open, onClose }) => {
         { text: 'Manage', path: '/worker/manage' }
       ]
     },
+
     {
       text: 'Tasks',
       icon: <AccountIcon />,
@@ -58,10 +66,8 @@ const Sidebarmain = ({ open, onClose }) => {
       icon: <AccountIcon />,
       hasSubmenu: true,
       submenuKey: 'admin',
-      submenu: [
-        { text: 'Settings', path: '#' },
-        { text: 'Permissions', path: '#' }
-      ]
+      submenu: []
+
     },
     { text: 'Projects', icon: <DescriptionIcon />, path: '/projects' },
     { text: 'Calendar', icon: <CalendarIcon />, path: '#', badge: 'New' },
