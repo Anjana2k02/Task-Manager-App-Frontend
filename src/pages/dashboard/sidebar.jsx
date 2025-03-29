@@ -4,6 +4,7 @@ import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText
 import { Home as HomeIcon, AccountCircle as AccountIcon, Description as DescriptionIcon, CalendarMonth as CalendarIcon, Article as ArticleIcon, KeyboardArrowDown as ArrowDownIcon, KeyboardArrowUp as ArrowUpIcon, Close as CloseIcon } from '@mui/icons-material';
 
 import { Link, useNavigate } from 'react-router-dom';
+import { WorkflowIcon } from 'lucide-react';
 
 const Sidebarmain = ({ open, onClose }) => {
   const [expandedMenus, setExpandedMenus] = useState({});
@@ -41,7 +42,7 @@ const Sidebarmain = ({ open, onClose }) => {
 
     {
       text: 'Worker', 
-      icon: <WorkIcon />, 
+      icon: <AccountIcon />, 
       hasSubmenu: true,
       submenuKey: 'workers',
       submenu: [
@@ -70,7 +71,7 @@ const Sidebarmain = ({ open, onClose }) => {
       submenuKey: 'supervisors',
       submenu: [
 
-        { text: 'Manage', path: '/supervisor/list' },
+        { text: 'Supervisor', path: '/supervisor/list' },
         { text: 'Create', path: '/supervisor/create' },
         { text: 'Manage', path: '/supervisor/manage' }
       ]
@@ -97,7 +98,7 @@ const Sidebarmain = ({ open, onClose }) => {
       sx={{ width: 280, flexShrink: 0, '& .MuiDrawer-paper': { width: 280, boxSizing: 'border-box' } }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderBottom: '1px solid rgba(0, 0, 0, 0.12)' }}>
-        <Typography variant="h6">Brand</Typography>
+        <Typography variant="h6"></Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>

@@ -48,7 +48,7 @@ export default function Paths() { // Make sure the function name matches the exp
     <Suspense fallback={<Loading />}>
       <Routes>
 
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard2 />} />
         {/* user  */}
         <Route path="/user/list" element={<UserList />} />
         <Route path="/user/create" element={<UserCreate />} />
@@ -56,7 +56,7 @@ export default function Paths() { // Make sure the function name matches the exp
 
 
         {/* admin */}
-        <Route path="/admin/admindaashboard" element={<AdminDashboard2 />} /> 
+        {/* <Route path="/admin/admindaashboard" element={<AdminDashboard2 />} />  */}
         <Route path="/admin/requestlist" element={<TaskReassignList />} /> 
         <Route path="/admin/requestcreate" element={<RequestForm />} />
         <Route path="/admin/requestupdate" element={<RequestUpdate />} />

@@ -7,7 +7,7 @@ const Header = () => {
     <AppBar
       position="static"
       sx={{
-        backgroundColor: "white",
+        backgroundColor: "#caf0f8",
         color: "black",
         boxShadow: "none",
         borderBottom: "1px solid #ddd",
@@ -16,7 +16,7 @@ const Header = () => {
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         {/* Left Side - Page Title */}
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          Dashboard
+          HELIX
         </Typography>
 
         {/* Center - Search Button */}
@@ -29,7 +29,7 @@ const Header = () => {
 
         {/* Right Side - Employee & User Icon */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Typography variant="body1">John Doe</Typography>
+          <Typography variant="body1">Guest User</Typography>
           <Avatar alt="User" src="/static/images/avatar/1.jpg" />
         </Box>
       </Toolbar>
