@@ -8,6 +8,7 @@ import { CircularProgress, Box } from "@mui/material";
 const UserList = lazy(() => import("../pages/user/user"));
 const UserCreate = lazy(() => import("../pages/user/create"));
 const UserManage = lazy(() => import("../pages/user/manage"));
+const AdminDashboard2 = lazy(() => import("../pages/adminDashboard/admin-view"));
 const AdminDashboard = lazy(() => import("../pages/admin/admindashboard"));
 const TaskReassignList = lazy(() => import("../pages/admin/requestlist"));
 const RequestForm = lazy(() => import("../pages/admin/requestcreate"));
@@ -25,14 +26,16 @@ export default function Paths() { // Make sure the function name matches the exp
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
+
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         {/* user  */}
-        <Route path="/users" element={< UserList/>} />
+        <Route path="/user/list" element={<UserList />} />
         <Route path="/user/create" element={<UserCreate />} />
         <Route path="/user/manage" element={<UserManage />} />
 
 
         {/* admin */}
-        <Route path="/admin/admindaashboard" element={<AdminDashboard />} /> 
+        <Route path="/admin/admindaashboard" element={<AdminDashboard2 />} /> 
         <Route path="/admin/requestlist" element={<TaskReassignList />} /> 
         <Route path="/admin/requestcreate" element={<RequestForm />} />
         <Route path="/admin/requestupdate" element={<RequestUpdate />} />
