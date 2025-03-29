@@ -53,7 +53,10 @@ const Sidebarmain = ({ open, onClose }) => {
       icon: <AccountIcon />, 
       hasSubmenu: true,
       submenuKey: 'admin',
-      submenu: []
+      submenu: [
+        { text: 'Admin Dashboard', path: '/admin/admindaashboard' },
+        { text: 'Task Reassign Requests List', path: '/admin/requestlist' },
+      ]
     },
     { 
       text: 'Projects', 
