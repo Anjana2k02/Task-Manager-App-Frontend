@@ -3,17 +3,29 @@ import { Routes, Route } from "react-router-dom";
 import { CircularProgress, Box } from "@mui/material";
 
 
+import User from "../pages/user/user";
+import Worker from "../pages/worker/worker";
+
+
 // Lazy load components
 
 const UserList = lazy(() => import("../pages/user/user"));
 const UserCreate = lazy(() => import("../pages/user/create"));
 const UserManage = lazy(() => import("../pages/user/manage"));
+
+
+const WorkerList = lazy(() => import("../pages/worker/worker"));
+const WorkerCreate = lazy(() => import("../pages/worker/create"));
+const WorkerManage = lazy(() => import("../pages/worker/manage"));
+
+
 const AdminDashboard2 = lazy(() => import("../pages/adminDashboard/admin-view"));
 const AdminDashboard = lazy(() => import("../pages/admin/admindashboard"));
 const TaskReassignList = lazy(() => import("../pages/admin/requestlist"));
 const RequestForm = lazy(() => import("../pages/admin/requestcreate"));
 const RequestUpdate = lazy(() => import("../pages/admin/requestupdate"));
 const RequestDelete = lazy(() => import("../pages/admin/requestdelete"));
+
 
 
 const Loading = () => (
@@ -45,6 +57,9 @@ export default function Paths() { // Make sure the function name matches the exp
 
 
         {/* worker */}
+        <Route path="/worker/list" element={<WorkerList />} />
+        <Route path="/worker/create" element={<WorkerCreate />} />
+        <Route path="/worker/manage" element={<WorkerManage />} />
 
 
         {/* tesing */}
