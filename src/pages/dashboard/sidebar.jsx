@@ -54,9 +54,9 @@ const Sidebarmain = ({ open, onClose }) => {
       hasSubmenu: true,
       submenuKey: 'tasks',
       submenu: [
-        { text: 'All Tasks', path: '#' },
-        { text: 'Create Task', path: '#' },
-        { text: 'Task Overview', path: '#' },
+        { text: 'All Tasks', path: '/task/list' },
+        { text: 'Create Task', path: '/task/create' },
+        { text: 'Manage Task', path: '/task/manage' },
       ],
     },
     {
