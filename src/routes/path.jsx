@@ -21,6 +21,10 @@ const SupervisorList = lazy(() => import("../pages/supervisor/list"));
 const SupervisorCreate = lazy(() => import("../pages/supervisor/create"));
 const SupervisorManage = lazy(() => import("../pages/supervisor/manage"));
 
+const TaskList = lazy(() => import("../pages/task/list"));
+const TaskCreate = lazy(() => import("../pages/task/create")); 
+const TaskManage = lazy(() => import("../pages/task/manage"));
+
 const Loading = () => (
   <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
     <CircularProgress />
@@ -52,6 +56,12 @@ export default function Paths() {
         <Route path="/worker/list" element={<WorkerList />} />
         <Route path="/worker/create" element={<WorkerCreate />} />
         <Route path="/worker/manage" element={<WorkerManage />} />
+
+        {/* Task */}
+        <Route path="/task/list" element={<TaskList />} /> 
+        <Route path="/task/create" element={<TaskCreate />} /> 
+        <Route path="/task/manage" element={<TaskManage />} /> 
+
       </Routes>
     </Suspense>
   );
