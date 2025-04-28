@@ -205,22 +205,6 @@ export default function WorkerCreate() {
               />
             </Grid>
 
-            <Grid item xs={12}>
-              <TextField
-                name="expression"
-                label="Expression"
-                multiline
-                rows={3}
-                value={formData.expression}
-                onChange={handleChange}
-                error={!!errors.expression}
-                helperText={errors.expression}
-                fullWidth
-                margin="normal"
-                size="medium"
-              />
-            </Grid>
-
 
             <Grid item xs={12}>
               <TextField
