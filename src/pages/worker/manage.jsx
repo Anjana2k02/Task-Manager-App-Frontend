@@ -42,18 +42,16 @@ const WorkerTable = () => {
     setPage(0);
   };
 
+  // implement download button
   const downloadPDF = async () => {
     try {
-      const config = {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      };
-      const response = await getFetcherPramspdf(enpoints.worker.report, config);
+      const response = await getFetcherPramspdf(enpoints.worker.report);
+      console.log("PDF Response:", response);
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'Worker Report.pdf');
+      link.setAttribute('download', 'Worker-List-Report.pdf');
       document.body.appendChild(link);
       link.click();
       link.remove();

@@ -44,51 +44,23 @@ const UserTable = () => {
   };
 
 
-  const downloadPDF = async () => {
-    setpdflorading(true);
-
-    // const acc = {
-    //   from_date: moment(filters.startDate).format('YYYY-MM-DD'),
-    //   to_date: moment(filters.endDate).format('YYYY-MM-DD'),
-    // };
-    // console.log({ acc });
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const config = {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      };
-
-      const response = await getFetcherPramspdf(enpoints.user.report, config);
-      console.log("PDF Response:", response);
-
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'User Report Report.pdf');
-      document.body.appendChild(link);
-      link.click();
-      link.remove(); // Remove link after clicking
-
-    //   setpdflorading(false);
-    } catch (error) {
-      console.error("Download error:", error);
-
-    //   enqueueSnackbar('Something went wrong! Please check the selected date!', {
-    //     variant: 'warning',
-    //     autoHideDuration: 7000,
-    //     anchorOrigin: { vertical: 'top', horizontal: 'center' },
-    //     sx: {
-    //       width: '500px',
-    //     },
-    //   });
-
-    //   setpdflorading(false);
-    }
-  };
+   // implement download button
+   const downloadPDF = async () => {
+     try {
+       const response = await getFetcherPramspdf(enpoints.user.report);
+       console.log("PDF Response:", response);
+ 
+       const url = window.URL.createObjectURL(new Blob([response.data]));
+       const link = document.createElement('a');
+       link.href = url;
+       link.setAttribute('download', 'User Report.pdf');
+       document.body.appendChild(link);
+       link.click();
+       link.remove();
+     } catch (error) {
+       console.error("Download error:", error);
+     }
+   };
 
   return (
     <ThemeProvider theme={theme}>

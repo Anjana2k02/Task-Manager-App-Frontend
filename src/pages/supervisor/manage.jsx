@@ -42,6 +42,7 @@ const SupervisorTable = () => {
     setPage(0);
   };
 
+  // implement download button
   const downloadPDF = async () => {
     try {
       const response = await getFetcherPramspdf(enpoints.supervisor.report);
@@ -117,7 +118,7 @@ const SupervisorTable = () => {
                 <TableCell>First Name</TableCell>
                 <TableCell>Last Name</TableCell>
                 <TableCell>Email</TableCell>
-                <TableCell>Password</TableCell>
+                {/* <TableCell>Password</TableCell> */}
                 <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
@@ -128,7 +129,7 @@ const SupervisorTable = () => {
                   <TableCell>{supervisor.firstName}</TableCell>
                   <TableCell>{supervisor.lastName}</TableCell>
                   <TableCell>{supervisor.email}</TableCell>
-                  <TableCell>{supervisor.password}</TableCell>
+                  {/* <TableCell>{supervisor.password}</TableCell> */}
                   <TableCell>{supervisor.status}</TableCell>
                 </TableRow>
               ))}

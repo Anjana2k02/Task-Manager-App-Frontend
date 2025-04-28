@@ -11,9 +11,8 @@ export default function WorkerCreate() {
     lastName: "",
     email: "",
     password: "",
-    country: "",
     status: "",
-    expression: "",
+    expression: ""
   });
 
   const [errors, setErrors] = useState({});
@@ -28,6 +27,7 @@ export default function WorkerCreate() {
       [name]: value,
     });
 
+    // Clear error when user types
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -40,7 +40,7 @@ export default function WorkerCreate() {
     const newErrors = {};
 
     if (!formData.id.trim()) {
-      newErrors.id = "ID is required";
+      newErrors.id = "Worker ID is required";
     }
 
     if (!formData.firstName.trim()) {
@@ -63,16 +63,8 @@ export default function WorkerCreate() {
       newErrors.password = "Password must be at least 6 characters";
     }
 
-    if (!formData.country.trim()) {
-      newErrors.country = "Country is required";
-    }
-
     if (!formData.status.trim()) {
       newErrors.status = "Status is required";
-    }
-
-    if (!formData.expression.trim()) {
-      newErrors.expression = "Expression is required";
     }
 
     setErrors(newErrors);
@@ -81,25 +73,28 @@ export default function WorkerCreate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validateForm()) return;
 
     setIsSubmitting(true);
     setSuccessMessage("");
 
     try {
-      const response = await postFetcher(enpoints.worker.create, formData);
+      const response = await postFetcher(enpoints.worker.create, formData); //  API endpoint
       console.log("Worker created successfully:", response);
+
+      // Show success message
       setSuccessMessage("Worker created successfully!");
 
+      // Reset form
       setFormData({
         id: "",
         firstName: "",
         lastName: "",
         email: "",
         password: "",
-        country: "",
         status: "",
-        expression: "",
+        expression: ""
       });
     } catch (error) {
       console.error("Error creating worker:", error);
@@ -137,36 +132,122 @@ export default function WorkerCreate() {
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <Grid container spacing={2}>
-            {Object.keys(formData).map((field) => (
-              <Grid item xs={12} sm={field === "id" || field === "password" ? 12 : 6} key={field}>
-                <TextField
-                  name={field}
-                  label={field.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
-                  type={field === "password" && !showPassword ? "password" : "text"}
-                  value={formData[field]}
-                  onChange={handleChange}
-                  error={!!errors[field]}
-                  helperText={errors[field]}
-                  fullWidth
-                  required
-                  margin="normal"
-                  size="medium"
-                  InputProps={
-                    field === "password"
-                      ? {
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton onClick={togglePasswordVisibility} edge="end">
-                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }
-                      : {}
-                  }
-                />
-              </Grid>
-            ))}
+            <Grid item xs={12}>
+              <TextField
+                name="id"
+                label="Worker ID"
+                value={formData.id}
+                onChange={handleChange}
+                error={!!errors.id}
+                helperText={errors.id}
+                fullWidth
+                required
+                margin="normal"
+                size="medium"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                name="firstName"
+                label="First Name"
+                value={formData.firstName}
+                onChange={handleChange}
+                error={!!errors.firstName}
+                helperText={errors.firstName}
+                fullWidth
+                required
+                margin="normal"
+                size="medium"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                name="lastName"
+                label="Last Name"
+                value={formData.lastName}
+                onChange={handleChange}
+                error={!!errors.lastName}
+                helperText={errors.lastName}
+                fullWidth
+                required
+                margin="normal"
+                size="medium"
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                name="email"
+                label="Email Address"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                error={!!errors.email}
+                helperText={errors.email}
+                fullWidth
+                required
+                margin="normal"
+                size="medium"
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                name="password"
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
+                error={!!errors.password}
+                helperText={errors.password}
+                fullWidth
+                required
+                margin="normal"
+                size="medium"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton aria-label="toggle password visibility" onClick={togglePasswordVisibility} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                name="status"
+                label="Status"
+                value={formData.status}
+                onChange={handleChange}
+                error={!!errors.status}
+                helperText={errors.status}
+                fullWidth
+                required
+                margin="normal"
+                size="medium"
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                name="expression"
+                label="Expression"
+                multiline
+                rows={3}
+                value={formData.expression}
+                onChange={handleChange}
+                error={!!errors.expression}
+                helperText={errors.expression}
+                fullWidth
+                margin="normal"
+                size="medium"
+              />
+            </Grid>
           </Grid>
 
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }} disabled={isSubmitting}>

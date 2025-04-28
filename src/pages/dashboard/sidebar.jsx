@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Collapse, IconButton, Chip } from '@mui/material';
+
 import { Home as HomeIcon, AccountCircle as AccountIcon, Description as DescriptionIcon, CalendarMonth as CalendarIcon, Article as ArticleIcon, KeyboardArrowDown as ArrowDownIcon, KeyboardArrowUp as ArrowUpIcon, Close as CloseIcon } from '@mui/icons-material';
+
 import { Link, useNavigate } from 'react-router-dom';
 
 const Sidebarmain = ({ open, onClose }) => {
   const [expandedMenus, setExpandedMenus] = useState({});
-  const navigate = useNavigate(); // ✅ React Router's navigate function
+
+  const navigate = useNavigate();
+
 
   const handleToggle = (menu) => {
     setExpandedMenus((prev) => ({
@@ -15,7 +19,9 @@ const Sidebarmain = ({ open, onClose }) => {
   };
 
   const handleNavigation = (path) => {
-    if (path) navigate(path); // ✅ Correctly navigate programmatically
+
+    if (path) navigate(path);
+
   };
 
   const menuItems = [
@@ -28,8 +34,19 @@ const Sidebarmain = ({ open, onClose }) => {
       submenu: [
         { text: 'Users', path: '/user/list' },
         { text: 'Create', path: '/user/create' },
-        { text: 'Manage', path: '/user/manage' }
-      ]
+        { text: 'Manage', path: '/user/manage' },
+      ],
+    },
+    {
+      text: 'Worker',
+      icon: <AccountIcon />,
+      hasSubmenu: true,
+      submenuKey: 'workers',
+      submenu: [
+        { text: 'Workers', path: '/worker/list' },
+        { text: 'Create', path: '/worker/create' },
+        { text: 'Manage', path: '/worker/manage' },
+      ],
     },
     {
       text: 'Tasks',
@@ -39,8 +56,19 @@ const Sidebarmain = ({ open, onClose }) => {
       submenu: [
         { text: 'All Tasks', path: '#' },
         { text: 'Create Task', path: '#' },
-        { text: 'Task Overview', path: '#' }
-      ]
+        { text: 'Task Overview', path: '#' },
+      ],
+    },
+    {
+      text: 'Supervisor',
+      icon: <AccountIcon />,
+      hasSubmenu: true,
+      submenuKey: 'supervisors',
+      submenu: [
+        { text: 'Supervisor', path: '/supervisor/list' },
+        { text: 'Create', path: '/supervisor/create' },
+        { text: 'Manage', path: '/supervisor/manage' },
+      ],
     },
     {
       text: 'Admin',
@@ -54,7 +82,7 @@ const Sidebarmain = ({ open, onClose }) => {
     },
     { text: 'Projects', icon: <DescriptionIcon />, path: '/projects' },
     { text: 'Calendar', icon: <CalendarIcon />, path: '#', badge: 'New' },
-    { text: 'Documentation', icon: <ArticleIcon />, path: '#' }
+    { text: 'Documentation', icon: <ArticleIcon />, path: '#' },
   ];
 
   return (
@@ -65,7 +93,7 @@ const Sidebarmain = ({ open, onClose }) => {
       sx={{ width: 280, flexShrink: 0, '& .MuiDrawer-paper': { width: 280, boxSizing: 'border-box' } }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderBottom: '1px solid rgba(0, 0, 0, 0.12)' }}>
-        <Typography variant="h6">Brand</Typography>
+        <Typography variant="h6"></Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
