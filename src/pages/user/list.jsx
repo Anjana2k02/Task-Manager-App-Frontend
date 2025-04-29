@@ -50,21 +50,21 @@ const UserTable = () => {
         <Table sx={{ minWidth: 650 }} aria-label="user table">
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>First Name</TableCell>
-              <TableCell>Second Name</TableCell>
+              <TableCell>Name</TableCell>
+              {/* <TableCell>First Name</TableCell> */}
+              <TableCell>Country</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Password</TableCell>
+              <TableCell>Development</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {users.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((user) => (
               <TableRow key={user.id}>
-                <TableCell>{user.id}</TableCell>
-                <TableCell>{user.firstName}</TableCell>
-                <TableCell>{user.secondName}</TableCell>
+                <TableCell>{user.firstName} {user.secondName}</TableCell>
+                {/* <TableCell>{user.firstName}</TableCell> */}
+                <TableCell>{user.country}</TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{user.password}</TableCell>
+                <TableCell>{user.devType}</TableCell>
               </TableRow>
             ))}
           </TableBody>
