@@ -100,5 +100,16 @@ export const fetcher = async (args) => {
       viewAll: "/admin/view/all",
       report: "/admin/report",
     },
-
+    
+    task: {
+      create: "/task/create",
+      update: "/task/update",
+      delete: "/task/delete/{id}",
+      view: "/task/view/{id}",
+      viewAll: "/task/view/all",
+      report: "/task/report",
+    },
   }
+
+
+  // lashan dev test 1

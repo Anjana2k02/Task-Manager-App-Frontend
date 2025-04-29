@@ -4,7 +4,6 @@ import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText
 import { Home as HomeIcon, AccountCircle as AccountIcon, Description as DescriptionIcon, CalendarMonth as CalendarIcon, Article as ArticleIcon, KeyboardArrowDown as ArrowDownIcon, KeyboardArrowUp as ArrowUpIcon, Close as CloseIcon } from '@mui/icons-material';
 
 import { Link, useNavigate } from 'react-router-dom';
-import { WorkflowIcon } from 'lucide-react';
 
 const Sidebarmain = ({ open, onClose }) => {
   const [expandedMenus, setExpandedMenus] = useState({});
@@ -33,61 +32,57 @@ const Sidebarmain = ({ open, onClose }) => {
       hasSubmenu: true,
       submenuKey: 'users',
       submenu: [
-
         { text: 'Users', path: '/user/list' },
         { text: 'Create', path: '/user/create' },
-        { text: 'Manage', path: '/user/manage' }
-      ]
+        { text: 'Manage', path: '/user/manage' },
+      ],
     },
-
     {
-      text: 'Worker', 
-      icon: <AccountIcon />, 
+      text: 'Worker',
+      icon: <AccountIcon />,
       hasSubmenu: true,
       submenuKey: 'workers',
       submenu: [
-        { text: 'Workers', path: '/worker/list' },  
+        { text: 'Workers', path: '/worker/list' },
         { text: 'Create', path: '/worker/create' },
-        { text: 'Manage', path: '/worker/manage' }
-      ]
+        { text: 'Manage', path: '/worker/manage' },
+      ],
     },
-
     {
       text: 'Tasks',
       icon: <AccountIcon />,
       hasSubmenu: true,
       submenuKey: 'tasks',
       submenu: [
-        { text: 'All Tasks', path: '#' },
-        { text: 'Create Task', path: '#' },
-        { text: 'Task Overview', path: '#' }
-      ]
+        { text: 'All Tasks', path: '/task/list' },
+        { text: 'Create Task', path: '/task/create' },
+        { text: 'Manage Task', path: '/task/manage' },
+      ],
     },
-
     {
       text: 'Supervisor',
       icon: <AccountIcon />,
       hasSubmenu: true,
       submenuKey: 'supervisors',
       submenu: [
-
         { text: 'Supervisor', path: '/supervisor/list' },
         { text: 'Create', path: '/supervisor/create' },
-        { text: 'Manage', path: '/supervisor/manage' }
-      ]
+        { text: 'Manage', path: '/supervisor/manage' },
+      ],
     },
-
     {
       text: 'Admin',
       icon: <AccountIcon />,
       hasSubmenu: true,
       submenuKey: 'admin',
-      submenu: []
-// merge
+      submenu: [
+        { text: 'Settings', path: '/admin/settings' },
+        { text: 'Logs', path: '/admin/logs' },
+      ],
     },
     { text: 'Projects', icon: <DescriptionIcon />, path: '/projects' },
     { text: 'Calendar', icon: <CalendarIcon />, path: '#', badge: 'New' },
-    { text: 'Documentation', icon: <ArticleIcon />, path: '#' }
+    { text: 'Documentation', icon: <ArticleIcon />, path: '#' },
   ];
 
   return (
