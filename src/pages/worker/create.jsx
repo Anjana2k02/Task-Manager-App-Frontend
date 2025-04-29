@@ -132,20 +132,7 @@ export default function WorkerCreate() {
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                name="id"
-                label="Worker ID"
-                value={formData.id}
-                onChange={handleChange}
-                error={!!errors.id}
-                helperText={errors.id}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-              />
-            </Grid>
+            
 
             <Grid item xs={12} sm={6}>
               <TextField
@@ -218,25 +205,11 @@ export default function WorkerCreate() {
               />
             </Grid>
 
-            <Grid item xs={12}>
-              <TextField
-                name="status"
-                label="Status"
-                value={formData.status}
-                onChange={handleChange}
-                error={!!errors.status}
-                helperText={errors.status}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-              />
-            </Grid>
 
             <Grid item xs={12}>
               <TextField
                 name="expression"
-                label="Expression"
+                label="Description"
                 multiline
                 rows={3}
                 value={formData.expression}

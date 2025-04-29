@@ -17,7 +17,7 @@ const WorkerTable = () => {
 
   const theme = createTheme({
     palette: {
-      mode: 'light', 
+      mode: 'light',
     },
   });
 
@@ -26,6 +26,7 @@ const WorkerTable = () => {
       try {
         const data = await getFetcher(enpoints.worker.viewAll);
         setWorkers(data);
+        console.log('Workers:', data);
       } catch (error) {
         console.error("Error fetching workers:", error);
       }
@@ -42,7 +43,6 @@ const WorkerTable = () => {
     setPage(0);
   };
 
-  // implement download button
   const downloadPDF = async () => {
     try {
       const response = await getFetcherPramspdf(enpoints.worker.report);
@@ -64,16 +64,49 @@ const WorkerTable = () => {
     <ThemeProvider theme={theme}>
       <Box sx={{ p: 2, mt: 1 }}>
         <Stack spacing={1} mb={2} sx={{ borderBottom: '1px solid #ccc', pb: 1, mt: 2, mb: 4 }}>
-          <Typography variant="h5">Worker Management</Typography>
-          <Typography variant="subtitle1">Manage and view workers' data efficiently.</Typography>
+          <Typography variant="h5" component="div">
+            Worker Management
+          </Typography>
+          <Typography variant="subtitle1" component="div">
+            Manage and view workers' data efficiently.
+          </Typography>
         </Stack>
 
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
-            <DatePicker label="Start Date" value={startDate} onChange={(newDate) => setStartDate(newDate)} />
-            <DatePicker label="End Date" value={endDate} onChange={(newDate) => setEndDate(newDate)} />
-            <TextField label="Search" variant="outlined" size="small" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-            <Button variant="contained" color="primary" size="small" onClick={downloadPDF}>Download</Button>
+            <DatePicker
+              label="Start Date"
+              value={startDate}
+              sx={{ width: '170px' }}
+              onChange={(newDate) => setStartDate(newDate)}
+              slotProps={{ textField: { size: 'small' } }}
+            />
+
+            <DatePicker
+              label="End Date"
+              value={endDate}
+              sx={{ width: '170px' }}
+              onChange={(newDate) => setEndDate(newDate)}
+              slotProps={{ textField: { size: 'small' } }}
+            />
+
+            <TextField
+              label="Search"
+              variant="outlined"
+              size="small"
+              sx={{ width: '55%' }}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={downloadPDF}
+            >
+              Download
+            </Button>
           </Stack>
         </LocalizationProvider>
 
