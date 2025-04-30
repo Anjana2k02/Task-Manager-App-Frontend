@@ -57,19 +57,10 @@ export default function TaskCreate() {
     };
 
     try {
-      const response = await postFetcher(enpoints.task.create, formData); // API endpoint for task creation
-      console.log("Task created successfully:", response);
-
-      // Show success message
-      setSuccessMessage("Task created successfully!");
-
-      // Reset form
-      setFormData({
-        title: "",
-        description: "",
-        dueDate: "",
-        priority: "",
-      });
+      const response = await postFetcher(enpoints.task.create, taskData);
+      console.log("Task created:", response);
+      reset(); // Clear form
+      alert("Task created successfully!");
     } catch (error) {
       console.error("API Error:", error);
       setError("apiError", { message: "Failed to create task. Please try again." });
@@ -120,43 +111,6 @@ export default function TaskCreate() {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                name="startDate"
-                label="Start Date"
-                type="date"
-                value={formData.startDate}
-                onChange={handleChange}
-                error={!!errors.startDate}
-                helperText={errors.startDate}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="endDate"
-                label="End Date"
-                type="date"
-                value={formData.endDate}
-                onChange={handleChange}
-                error={!!errors.endDate}
-                helperText={errors.endDate}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-                InputLabelProps={{ shrink: true }}
-                {...register("dueDate")}
-                error={!!errors.dueDate}
-                helperText={errors.dueDate?.message}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
                 label="Due Date"
                 type="date"
                 fullWidth
@@ -187,35 +141,6 @@ export default function TaskCreate() {
                 </Typography>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="teamLeader"
-                label="Team Leader"
-                value={formData.teamLeader}
-                onChange={handleChange}
-                error={!!errors.teamLeader}
-                helperText={errors.teamLeader}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                component="label"
-                fullWidth
-                sx={{ mt: 2 }}
-              >
-                Add Document
-                <input
-                  type="file"
-                  hidden
-                  onChange={handleFileChange}
-                />
-              </Button>
-            </Grid>
           </Grid>
 
           <Button
@@ -228,10 +153,6 @@ export default function TaskCreate() {
             {isSubmitting ? "Creating..." : "Create Task"}
           </Button>
         </Box>
-
-        <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-          Please ensure all fields are filled out correctly before submitting the form.
-        </Typography>
       </Paper>
     </Container>
   );
