@@ -1,40 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { getFetcher, enpoints } from '../../utils/axios'; // Assuming axios functions are in a file named axios.js
+import React, { useEffect, useState } from "react";
+import { getFetcher, enpoints } from "../../utils/axios"; // Update path if needed
 
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TablePagination,
+} from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 const TaskTable = () => {
   const [tasks, setTasks] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Light theme configuration for MUI
   const theme = createTheme({
     palette: {
-      mode: 'light', // Set light theme
+      mode: "light",
     },
   });
 
-  // Fetching data from the API using the getFetcher function
   useEffect(() => {
     const fetchTasks = async () => {
       try {
+        console.log("Fetching from:", enpoints.task.viewAll); // Debug line
         const data = await getFetcher(enpoints.task.viewAll);
         setTasks(data);
-        console.log('Fetched tasks:', data);
+        console.log("Fetched tasks:", data);
       } catch (error) {
         console.error("Error fetching tasks:", error);
       }
     };
-  
+
     fetchTasks();
   }, []);
 
-  // Handle pagination changes
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
+
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
@@ -46,7 +54,6 @@ const TaskTable = () => {
         <Table sx={{ minWidth: 650 }} aria-label="task table">
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
               <TableCell>Title</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Due Date</TableCell>
@@ -54,15 +61,26 @@ const TaskTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {tasks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((task) => (
-              <TableRow key={task.id}>
-                <TableCell>{task.id}</TableCell>
-                <TableCell>{task.title}</TableCell>
-                <TableCell>{task.description}</TableCell>
-                <TableCell>{task.dueDate}</TableCell>
-                <TableCell>{task.priority}</TableCell>
-              </TableRow>
-            ))}
+            {tasks
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((task) => (
+                <TableRow key={task.id}>
+                  <TableCell>{task.task || "Untitled"}</TableCell>
+                  <TableCell>{task.description || "No Description"}</TableCell>
+                  <TableCell>
+                    {task.dueDate
+                      ? new Date(task.dueDate).toLocaleDateString()
+                      : "No Due Date"}
+                  </TableCell>
+                  <TableCell>
+                    {{
+                      1: "Critical",
+                      2: "High",
+                      3: "Standard",
+                    }[task.priority] || "Unknown"}
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
