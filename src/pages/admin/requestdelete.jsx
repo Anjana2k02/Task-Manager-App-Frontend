@@ -1,74 +1,101 @@
-import React, { useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
+import React, { useState } from "react";
+import {
+  Box,
+  TextField,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  Typography,
+  IconButton,
+  Paper,
+  Stack,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
-const RequestDelete = () => {
-  // State for managing the delete confirmation dialog
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+const TaskReassignList = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [requests, setRequests] = useState([
+    {
+      id: 1,
+      name: "John Doe",
+      mentalStatus: "Stressed",
+      recommendation: "Reduce workload",
+      date: "2025-03-28",
+    },
+    {
+      id: 2,
+      name: "Jane Smith",
+      mentalStatus: "Neutral",
+      recommendation: "No change required",
+      date: "2025-03-27",
+    },
+    {
+      id: 3,
+      name: "Alice Brown",
+      mentalStatus: "Overwhelmed",
+      recommendation: "Reassign some tasks",
+      date: "2025-03-26",
+    },
+  ]);
 
-  // Function to open the delete confirmation dialog
-  const handleDeleteClickOpen = () => {
-    setOpenDeleteDialog(true);
-  };
+  // Handle search filter
+  const filteredRequests = requests
+    .filter((request) =>
+      request.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date (latest first)
 
-  // Function to close the delete confirmation dialog
-  const handleDeleteClose = () => {
-    setOpenDeleteDialog(false);
-  };
-
-  // Function to handle task deletion
-  const handleDeleteConfirm = () => {
-    // Logic to delete task goes here
-    console.log('Task deleted');
-    setOpenDeleteDialog(false);  // Close dialog after deletion
+  // Handle delete request
+  const handleDelete = (id) => {
+    setRequests(requests.filter((request) => request.id !== id));
   };
 
   return (
-    <div>
-      <Typography variant="h6" gutterBottom>Reassign Task</Typography>
-
-      {/* Your other task reassign form fields here */}
-      
-      {/* Button to trigger delete confirmation dialog */}
-      <Button 
-        variant="contained" 
-        color="error" 
-        onClick={handleDeleteClickOpen}>
-        Delete Task
-      </Button>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={openDeleteDialog}
-        onClose={handleDeleteClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        maxWidth="sm"  // Small rectangle shape
-        fullWidth={false}  // Prevents stretching to full width
-        PaperProps={{
-          style: {
-            width: '300px', // Small width
-            height: '200px', // Small height
-            margin: 'auto',  // Center the dialog
-          },
-        }}
-      >
-        <DialogTitle id="alert-dialog-title" align="center">Delete Request</DialogTitle>
-        <DialogContent style={{ textAlign: 'center' }}>
-          <Typography variant="body1">
-            Are you sure you want to delete this task reassign form request? You can't undo this action.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleDeleteConfirm} color="error" autoFocus>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+    <Box sx={{ width: "90%", margin: "auto", mt: 4 }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        Reassign Task Requests
+      </Typography>
+      <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+        <TextField
+          label="Search by Name"
+          variant="outlined"
+          fullWidth
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Button variant="contained" color="primary">Add New</Button>
+      </Stack>
+      <Paper sx={{ borderRadius: 2, boxShadow: 3, maxHeight: "60vh", overflowY: "auto" }}>
+        <List>
+          {filteredRequests.map((request) => (
+            <ListItem
+              key={request.id}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                borderBottom: "1px solid #ddd",
+              }}
+            >
+              <ListItemText
+                primary={request.name}
+                secondary={`${request.mentalStatus} - ${request.recommendation}`}
+              />
+              <Box>
+                <IconButton color="primary">
+                  <EditIcon />
+                </IconButton>
+                <IconButton color="error" onClick={() => handleDelete(request.id)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
+            </ListItem>
+          ))}
+        </List>
+      </Paper>
+    </Box>
   );
 };
 
-export default RequestDelete;
+git
+export default TaskReassignList;
