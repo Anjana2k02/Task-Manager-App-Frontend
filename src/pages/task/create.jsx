@@ -9,7 +9,6 @@ export default function TaskCreate() {
     description: "",
     startDate: "",
     endDate: "",
-    dueDate: "",
     priority: "",
     teamLeader: "",
     document: null,
@@ -59,10 +58,6 @@ export default function TaskCreate() {
 
     if (!formData.endDate.trim()) {
       newErrors.endDate = "End date is required";
-    }
-
-    if (!formData.dueDate.trim()) {
-      newErrors.dueDate = "Due date is required";
     }
 
     if (!formData.priority.trim()) {
