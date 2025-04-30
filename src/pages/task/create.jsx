@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Box, TextField, Button, Typography, Container, Paper, InputAdornment, IconButton } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import { Box, TextField, Button, Typography, Container, Paper, Grid } from "@mui/material";
 import { PersonAdd } from "@mui/icons-material";
 import { enpoints, postFetcher } from "../../utils/axios";
 
@@ -8,8 +7,12 @@ export default function TaskCreate() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    startDate: "",
+    endDate: "",
     dueDate: "",
     priority: "",
+    teamLeader: "",
+    document: null,
   });
 
   const [errors, setErrors] = useState({});
@@ -32,6 +35,13 @@ export default function TaskCreate() {
     }
   };
 
+  const handleFileChange = (e) => {
+    setFormData({
+      ...formData,
+      document: e.target.files[0],
+    });
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -43,12 +53,24 @@ export default function TaskCreate() {
       newErrors.description = "Task description is required";
     }
 
+    if (!formData.startDate.trim()) {
+      newErrors.startDate = "Start date is required";
+    }
+
+    if (!formData.endDate.trim()) {
+      newErrors.endDate = "End date is required";
+    }
+
     if (!formData.dueDate.trim()) {
       newErrors.dueDate = "Due date is required";
     }
 
     if (!formData.priority.trim()) {
       newErrors.priority = "Priority is required";
+    }
+
+    if (!formData.teamLeader.trim()) {
+      newErrors.teamLeader = "Team leader is required";
     }
 
     setErrors(newErrors);
@@ -64,7 +86,12 @@ export default function TaskCreate() {
     setSuccessMessage("");
 
     try {
-      const response = await postFetcher(enpoints.task.create, formData); // API endpoint for task creation
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach((key) => {
+        formDataToSend.append(key, formData[key]);
+      });
+
+      const response = await postFetcher(enpoints.task.create, formDataToSend); // API endpoint for task creation
       console.log("Task created successfully:", response);
 
       // Show success message
@@ -74,8 +101,12 @@ export default function TaskCreate() {
       setFormData({
         title: "",
         description: "",
+        startDate: "",
+        endDate: "",
         dueDate: "",
         priority: "",
+        teamLeader: "",
+        document: null,
       });
     } catch (error) {
       console.error("Error creating task:", error);
@@ -141,6 +172,42 @@ export default function TaskCreate() {
             </Grid>
             <Grid item xs={12}>
               <TextField
+                name="startDate"
+                label="Start Date"
+                type="date"
+                value={formData.startDate}
+                onChange={handleChange}
+                error={!!errors.startDate}
+                helperText={errors.startDate}
+                fullWidth
+                required
+                margin="normal"
+                size="medium"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                name="endDate"
+                label="End Date"
+                type="date"
+                value={formData.endDate}
+                onChange={handleChange}
+                error={!!errors.endDate}
+                helperText={errors.endDate}
+                fullWidth
+                required
+                margin="normal"
+                size="medium"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
                 name="dueDate"
                 label="Due Date"
                 type="date"
@@ -171,12 +238,45 @@ export default function TaskCreate() {
                 size="medium"
               />
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                name="teamLeader"
+                label="Team Leader"
+                value={formData.teamLeader}
+                onChange={handleChange}
+                error={!!errors.teamLeader}
+                helperText={errors.teamLeader}
+                fullWidth
+                required
+                margin="normal"
+                size="medium"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                component="label"
+                fullWidth
+                sx={{ mt: 2 }}
+              >
+                Add Document
+                <input
+                  type="file"
+                  hidden
+                  onChange={handleFileChange}
+                />
+              </Button>
+            </Grid>
           </Grid>
 
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }} disabled={isSubmitting}>
             {isSubmitting ? "Creating..." : "Create Task"}
           </Button>
         </Box>
+
+        <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+          Please ensure all fields are filled out correctly before submitting the form.
+        </Typography>
       </Paper>
     </Container>
   );
