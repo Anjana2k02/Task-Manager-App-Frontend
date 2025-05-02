@@ -1,3 +1,5 @@
+import axios from "axios";
+
 // Add FastAPI base URL
 const HOST_FASTAPI = "http://localhost:8000";
 
@@ -17,3 +19,8 @@ export const getFastAPIParamFetcher = async (url, params = {}, config = {}) => {
   });
   return res.data;
 };
+
+export const fastApi = {
+    facialStatus: "/stream_status",
+    test : "/test",
+}
