@@ -10,8 +10,8 @@ const UserManage = lazy(() => import("../pages/user/manage"));
 const WorkerList = lazy(() => import("../pages/worker/list"));
 const WorkerCreate = lazy(() => import("../pages/worker/create"));
 const WorkerManage = lazy(() => import("../pages/worker/manage"));
-const workerprofile = lazy(() => import("../pages/worker/workerprofile"));
-const workerhome = lazy(() => import("../pages/worker/workerhome"));
+const WorkerProfile = lazy(() => import("../pages/worker/workerprofile"));
+const WorkerHome = lazy(() => import("../pages/worker/workerhome"));
 
 const AdminDashboard = lazy(() => import("../pages/admin/admindashboard"));
 const TaskReassignList = lazy(() => import("../pages/admin/requestlist"));
