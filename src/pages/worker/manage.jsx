@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { getFetcher, enpoints, getFetcherPramspdf } from '../../utils/axios'; 
+import { getFetcher, enpoints, getFetcherPramspdf } from '../../utils/axios';
 
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Box, Stack, Typography, TextField, Button } from '@mui/material';
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination,
+  Box, Stack, Typography, TextField, Button, Select, MenuItem
+} from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -15,11 +18,7 @@ const WorkerTable = () => {
   const [endDate, setEndDate] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const theme = createTheme({
-    palette: {
-      mode: 'light',
-    },
-  });
+  const theme = createTheme({ palette: { mode: 'light' } });
 
   useEffect(() => {
     const fetchWorkers = async () => {
@@ -34,9 +33,13 @@ const WorkerTable = () => {
     fetchWorkers();
   }, []);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  const handleStatusChange = (id, newStatus) => {
+    setWorkers(prev =>
+      prev.map(worker => worker.id === id ? { ...worker, status: newStatus } : worker)
+    );
   };
+
+  const handleChangePage = (event, newPage) => setPage(newPage);
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -46,8 +49,6 @@ const WorkerTable = () => {
   const downloadPDF = async () => {
     try {
       const response = await getFetcherPramspdf(enpoints.worker.report);
-      console.log("PDF Response:", response);
-
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -60,16 +61,26 @@ const WorkerTable = () => {
     }
   };
 
+  // Style helper
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'To Do':
+        return '#FFF176'; // yellow
+      case 'In Progress':
+        return '#81D4FA'; // light blue
+      case 'Complete':
+        return '#AED581'; // light green
+      default:
+        return 'white';
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ p: 2, mt: 1 }}>
         <Stack spacing={1} mb={2} sx={{ borderBottom: '1px solid #ccc', pb: 1, mt: 2, mb: 4 }}>
-          <Typography variant="h5" component="div">
-            Worker Management
-          </Typography>
-          <Typography variant="subtitle1" component="div">
-            Manage and view workers' data efficiently.
-          </Typography>
+          <Typography variant="h5">Worker Management</Typography>
+          <Typography variant="subtitle1">Manage and view workers' data efficiently.</Typography>
         </Stack>
 
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -99,12 +110,7 @@ const WorkerTable = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
 
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={downloadPDF}
-            >
+            <Button variant="contained" color="primary" size="small" onClick={downloadPDF}>
               Download
             </Button>
           </Stack>
@@ -118,25 +124,52 @@ const WorkerTable = () => {
                 <TableCell>First Name</TableCell>
                 <TableCell>Last Name</TableCell>
                 <TableCell>Email</TableCell>
-                <TableCell>Password</TableCell>
                 <TableCell>Country</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Expression</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {workers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((worker) => (
-                <TableRow key={worker.id}>
-                  <TableCell>{worker.id}</TableCell>
-                  <TableCell>{worker.firstName}</TableCell>
-                  <TableCell>{worker.lastName}</TableCell>
-                  <TableCell>{worker.email}</TableCell>
-                  <TableCell>{worker.password}</TableCell>
-                  <TableCell>{worker.country}</TableCell>
-                  <TableCell>{worker.status}</TableCell>
-                  <TableCell>{worker.expression}</TableCell>
-                </TableRow>
-              ))}
+              {workers
+                .filter(worker =>
+                  worker.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  worker.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  worker.email?.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((worker) => (
+                  <TableRow key={worker.id}>
+                    <TableCell>{worker.id}</TableCell>
+                    <TableCell>{worker.firstName}</TableCell>
+                    <TableCell>{worker.lastName}</TableCell>
+                    <TableCell>{worker.email}</TableCell>
+                    <TableCell>{worker.country}</TableCell>
+                    <TableCell>
+                      <Select
+                        value={worker.status || ''}
+                        size="small"
+                        onChange={(e) => handleStatusChange(worker.id, e.target.value)}
+                        sx={{
+                          backgroundColor: getStatusColor(worker.status),
+                          borderRadius: '5px',
+                          minWidth: 120,
+                        }}
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              backgroundColor: '#f9f9f9'
+                            }
+                          }
+                        }}
+                      >
+                        <MenuItem value="To Do" sx={{ backgroundColor: '#FFF176' }}>To Do</MenuItem>
+                        <MenuItem value="In Progress" sx={{ backgroundColor: '#81D4FA' }}>In Progress</MenuItem>
+                        <MenuItem value="Complete" sx={{ backgroundColor: '#AED581' }}>Complete</MenuItem>
+                      </Select>
+                    </TableCell>
+                    <TableCell>{worker.expression}</TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>

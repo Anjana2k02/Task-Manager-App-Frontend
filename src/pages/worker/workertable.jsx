@@ -14,10 +14,10 @@ import Grid from "@mui/material/Grid";
 import { Visibility, VisibilityOff, PersonAdd } from "@mui/icons-material";
 import { enpoints, postFetcher } from "../../utils/axios";
 
-export default function UserCreate() {
+export default function WorkerCreate() {
   const [formData, setFormData] = useState({
     firstName: "",
-    secondName: "",
+    lastName: "",
     email: "",
     password: "",
     devType: "",
@@ -30,7 +30,6 @@ export default function UserCreate() {
   const [successMessage, setSuccessMessage] = useState("");
   const [countries, setCountries] = useState([]);
 
-  // Fetch countries once
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -68,10 +67,8 @@ export default function UserCreate() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.firstName.trim())
-      newErrors.firstName = "First name is required";
-    if (!formData.secondName.trim())
-      newErrors.secondName = "Second name is required";
+    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -94,26 +91,21 @@ export default function UserCreate() {
     setSuccessMessage("");
 
     try {
-      const payload = {
-        ...formData,
-        userType: "worker", // hardcoded
-      };
-
-      const response = await postFetcher(enpoints.user.create, payload);
-      console.log("User created:", response);
-      setSuccessMessage("User created successfully!");
+      const response = await postFetcher(enpoints.worker.create, formData);
+      console.log("Worker created:", response);
+      setSuccessMessage("Worker created successfully!");
 
       setFormData({
         firstName: "",
-        secondName: "",
+        lastName: "",
         email: "",
         password: "",
         devType: "",
         country: "",
       });
     } catch (err) {
-      console.error("Error creating user:", err);
-      setErrors({ apiError: "Failed to create user. Try again." });
+      console.error("Error creating worker:", err);
+      setErrors({ apiError: "Failed to create worker. Try again." });
     } finally {
       setIsSubmitting(false);
     }
@@ -158,12 +150,12 @@ export default function UserCreate() {
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
-                name="secondName"
-                label="Second Name"
-                value={formData.secondName}
+                name="lastName"
+                label="Last Name"
+                value={formData.lastName}
                 onChange={handleChange}
-                error={!!errors.secondName}
-                helperText={errors.secondName}
+                error={!!errors.lastName}
+                helperText={errors.lastName}
                 fullWidth
                 required
                 margin="normal"
@@ -174,9 +166,7 @@ export default function UserCreate() {
               <Autocomplete
                 options={countries}
                 getOptionLabel={(option) => option.name}
-                value={
-                  countries.find((c) => c.name === formData.country) || null
-                }
+                value={countries.find((c) => c.name === formData.country) || null}
                 onChange={(e, value) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -291,7 +281,7 @@ export default function UserCreate() {
             sx={{ mt: 3, mb: 2, py: 1.5 }}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Creating..." : "Create Account"}
+            {isSubmitting ? "Creating..." : "Create Worker"}
           </Button>
         </Box>
       </Paper>
