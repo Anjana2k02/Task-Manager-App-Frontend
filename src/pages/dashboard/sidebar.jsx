@@ -63,6 +63,17 @@ const Sidebarmain = ({ open, onClose }) => {
       ],
     },
     {
+      text: 'Task Dividing',
+      icon: <AccountIcon />,
+      hasSubmenu: true,
+      submenuKey: 'taskdi',
+      submenu: [
+        { text: 'All Task dividing', path: "/taskdi/list" },
+        { text: 'Create', path: "/taskdi/create" },
+        { text: 'Manage', path: "/taskdi/manage" },
+      ],
+    },
+    {
       text: 'Supervisor',
       icon: <AccountIcon />,
       hasSubmenu: true,
