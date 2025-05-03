@@ -12,6 +12,7 @@ const WorkerCreate = lazy(() => import("../pages/worker/create"));
 const WorkerManage = lazy(() => import("../pages/worker/manage"));
 const WorkerTable = lazy(() => import("../pages/worker/workertable"));
 const WorkerProfile = lazy(() => import("../pages/worker/workerprofile"));
+const WorkerLanding = lazy(() => import("../pages/worker/workerlanding"));
 
 const AdminDashboard = lazy(() => import("../pages/admin/admindashboard"));
 const TaskReassignList = lazy(() => import("../pages/admin/requestlist"));
@@ -60,6 +61,7 @@ export default function Paths() {
         <Route path="/worker/manage" element={<WorkerManage />} />
         <Route path="/worker/workertable" element={<WorkerTable />} />
         <Route path="/worker/workerprofile" element={<WorkerProfile />} />
+        <Route path="/worker/workerlanding" element={<WorkerLanding />} />
 
 
         {/* Task */}
