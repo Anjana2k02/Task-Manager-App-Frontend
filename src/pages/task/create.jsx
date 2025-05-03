@@ -1,72 +1,86 @@
-import { useState } from "react";
-import { Box, TextField, Button, Typography, Container, Paper, Grid } from "@mui/material";
-import { PersonAdd } from "@mui/icons-material";
+import { useEffect, useState } from "react";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Container,
+  Paper,
+  InputAdornment,
+  IconButton,
+  Autocomplete,
+} from "@mui/material";
+import Grid from "@mui/material/Grid";
+import { Visibility, VisibilityOff, PersonAdd } from "@mui/icons-material";
 import { enpoints, postFetcher } from "../../utils/axios";
 
-export default function TaskCreate() {
+export default function UserCreate() {
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    startDate: "",
-    endDate: "",
-    priority: "",
-    teamLeader: "",
-    document: null,
+    firstName: "",
+    secondName: "",
+    email: "",
+    password: "",
+    devType: "",
+    country: "",
   });
 
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [countries, setCountries] = useState([]);
+
+  // Fetch countries once
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await fetch("https://restcountries.com/v3.1/all");
+        const data = await res.json();
+        const parsed = data
+          .map((c) => ({
+            name: c.name.common,
+            flag: c.flags?.png || "",
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        setCountries(parsed);
+      } catch (err) {
+        console.error("Error fetching countries:", err);
+      }
+    };
+
+    fetchCountries();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
 
-    // Clear error when user types
     if (errors[name]) {
-      setErrors({
-        ...errors,
+      setErrors((prev) => ({
+        ...prev,
         [name]: null,
-      });
+      }));
     }
-  };
-
-  const handleFileChange = (e) => {
-    setFormData({
-      ...formData,
-      document: e.target.files[0],
-    });
   };
 
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.title.trim()) {
-      newErrors.title = "Task title is required";
+    if (!formData.firstName.trim())
+      newErrors.firstName = "First name is required";
+    if (!formData.secondName.trim())
+      newErrors.secondName = "Second name is required";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
     }
-
-    if (!formData.description.trim()) {
-      newErrors.description = "Task description is required";
-    }
-
-    if (!formData.startDate.trim()) {
-      newErrors.startDate = "Start date is required";
-    }
-
-    if (!formData.endDate.trim()) {
-      newErrors.endDate = "End date is required";
-    }
-
-    if (!formData.priority.trim()) {
-      newErrors.priority = "Priority is required";
-    }
-
-    if (!formData.teamLeader.trim()) {
-      newErrors.teamLeader = "Team leader is required";
-    }
+    if (!formData.password || formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+    if (!formData.country) newErrors.country = "Country is required";
+    if (!formData.devType) newErrors.devType = "Developer type is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -74,51 +88,45 @@ export default function TaskCreate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     setIsSubmitting(true);
     setSuccessMessage("");
 
     try {
-      const formDataToSend = new FormData();
-      Object.keys(formData).forEach((key) => {
-        formDataToSend.append(key, formData[key]);
-      });
+      const payload = {
+        ...formData,
+        userType: "worker", // hardcoded
+      };
 
-      const response = await postFetcher(enpoints.task.create, formDataToSend); // API endpoint for task creation
-      console.log("Task created successfully:", response);
+      const response = await postFetcher(enpoints.user.create, payload);
+      console.log("User created:", response);
+      setSuccessMessage("User created successfully!");
 
-      // Show success message
-      setSuccessMessage("Task created successfully!");
-
-      // Reset form
       setFormData({
-        title: "",
-        description: "",
-        startDate: "",
-        endDate: "",
-        dueDate: "",
-        priority: "",
-        teamLeader: "",
-        document: null,
+        firstName: "",
+        secondName: "",
+        email: "",
+        password: "",
+        devType: "",
+        country: "",
       });
-    } catch (error) {
-      console.error("Error creating task:", error);
-      setErrors({ apiError: "Failed to create task. Please try again." });
+    } catch (err) {
+      console.error("Error creating user:", err);
+      setErrors({ apiError: "Failed to create user. Try again." });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   return (
     <Container maxWidth="sm">
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
         <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
           <PersonAdd color="primary" />
-          <Typography variant="h5" component="h1">
-            Create Task
-          </Typography>
+          <Typography variant="h5">Create Worker Account</Typography>
         </Box>
 
         {successMessage && (
@@ -126,7 +134,6 @@ export default function TaskCreate() {
             {successMessage}
           </Typography>
         )}
-
         {errors.apiError && (
           <Typography color="error.main" sx={{ mb: 2 }}>
             {errors.apiError}
@@ -135,14 +142,80 @@ export default function TaskCreate() {
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                name="firstName"
+                label="First Name"
+                value={formData.firstName}
+                onChange={handleChange}
+                error={!!errors.firstName}
+                helperText={errors.firstName}
+                fullWidth
+                required
+                margin="normal"
+                size="medium"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                name="secondName"
+                label="Second Name"
+                value={formData.secondName}
+                onChange={handleChange}
+                error={!!errors.secondName}
+                helperText={errors.secondName}
+                fullWidth
+                required
+                margin="normal"
+                size="medium"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Autocomplete
+                options={countries}
+                getOptionLabel={(option) => option.name}
+                value={
+                  countries.find((c) => c.name === formData.country) || null
+                }
+                onChange={(e, value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    country: value ? value.name : "",
+                  }))
+                }
+                renderOption={(props, option) => (
+                  <Box component="li" {...props}>
+                    <img
+                      src={option.flag}
+                      alt=""
+                      width="20"
+                      style={{ marginRight: 10 }}
+                    />
+                    {option.name}
+                  </Box>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Country"
+                    error={!!errors.country}
+                    helperText={errors.country}
+                    required
+                    margin="normal"
+                    fullWidth
+                  />
+                )}
+              />
+            </Grid>
             <Grid item xs={12}>
               <TextField
-                name="title"
-                label="Task Title"
-                value={formData.title}
+                name="email"
+                label="Email Address"
+                type="email"
+                value={formData.email}
                 onChange={handleChange}
-                error={!!errors.title}
-                helperText={errors.title}
+                error={!!errors.email}
+                helperText={errors.email}
                 fullWidth
                 required
                 margin="normal"
@@ -151,127 +224,76 @@ export default function TaskCreate() {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                name="description"
-                label="Task Description"
-                value={formData.description}
+                name="password"
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
                 onChange={handleChange}
-                error={!!errors.description}
-                helperText={errors.description}
+                error={!!errors.password}
+                helperText={errors.password}
                 fullWidth
                 required
                 margin="normal"
                 size="medium"
-                multiline
-                rows={4}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="startDate"
-                label="Start Date"
-                type="date"
-                value={formData.startDate}
-                onChange={handleChange}
-                error={!!errors.startDate}
-                helperText={errors.startDate}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-                InputLabelProps={{
-                  shrink: true,
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={togglePasswordVisibility} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                name="endDate"
-                label="End Date"
-                type="date"
-                value={formData.endDate}
-                onChange={handleChange}
-                error={!!errors.endDate}
-                helperText={errors.endDate}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-                InputLabelProps={{
-                  shrink: true,
+              <Autocomplete
+                options={[
+                  { label: "Software Developing", value: 1 },
+                  { label: "Data Analytics", value: 2 },
+                  { label: "Testing", value: 3 },
+                  { label: "DevOps", value: 4 },
+                ]}
+                getOptionLabel={(option) => option.label}
+                value={
+                  [
+                    { label: "Software Developing", value: 1 },
+                    { label: "Data Analytics", value: 2 },
+                    { label: "Testing", value: 3 },
+                    { label: "DevOps", value: 4 },
+                  ].find((opt) => opt.value === formData.devType) || null
+                }
+                onChange={(e, newValue) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    devType: newValue ? newValue.value : "",
+                  }));
                 }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Developer Type"
+                    error={!!errors.devType}
+                    helperText={errors.devType}
+                    required
+                    margin="normal"
+                    fullWidth
+                  />
+                )}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="dueDate"
-                label="Due Date"
-                type="date"
-                value={formData.dueDate}
-                onChange={handleChange}
-                error={!!errors.dueDate}
-                helperText={errors.dueDate}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="priority"
-                label="Priority"
-                value={formData.priority}
-                onChange={handleChange}
-                error={!!errors.priority}
-                helperText={errors.priority}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="teamLeader"
-                label="Team Leader"
-                value={formData.teamLeader}
-                onChange={handleChange}
-                error={!!errors.teamLeader}
-                helperText={errors.teamLeader}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                component="label"
-                fullWidth
-                sx={{ mt: 2 }}
-              >
-                Add Document
-                <input
-                  type="file"
-                  hidden
-                  onChange={handleFileChange}
-                />
-              </Button>
             </Grid>
           </Grid>
 
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }} disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Task"}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2, py: 1.5 }}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Creating..." : "Create Account"}
           </Button>
         </Box>
-
-        <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-          Please ensure all fields are filled out correctly before submitting the form.
-        </Typography>
       </Paper>
     </Container>
   );
