@@ -46,7 +46,8 @@ const Sidebarmain = ({ open, onClose }) => {
         { text: 'Workers', path: '/worker/list' },
         { text: 'Create', path: '/worker/create' },
         { text: 'Manage', path: '/worker/manage' },
-        { text: 'workertable', path: '/worker/wokertable' },
+        { text: 'Workertable', path: '/worker/wokertable' },
+        { text: 'Worker Profile', path: '/worker/wokerprofile' },
       ],
     },
     {
