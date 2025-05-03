@@ -1,71 +1,86 @@
-import { useState } from "react";
-import { Box, TextField, Button, Typography, Container, Paper, InputAdornment, IconButton } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Container,
+  Paper,
+  InputAdornment,
+  IconButton,
+  Autocomplete,
+} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { Visibility, VisibilityOff, PersonAdd } from "@mui/icons-material";
 import { enpoints, postFetcher } from "../../utils/axios";
 
-export default function WorkerCreate() {
+export default function UserCreate() {
   const [formData, setFormData] = useState({
-    id: "",
     firstName: "",
-    lastName: "",
+    secondName: "",
     email: "",
     password: "",
-    status: "",
-    expression: ""
+    devType: "",
+    country: "",
   });
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [countries, setCountries] = useState([]);
+
+  // Fetch countries once
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await fetch("https://restcountries.com/v3.1/all");
+        const data = await res.json();
+        const parsed = data
+          .map((c) => ({
+            name: c.name.common,
+            flag: c.flags?.png || "",
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        setCountries(parsed);
+      } catch (err) {
+        console.error("Error fetching countries:", err);
+      }
+    };
+
+    fetchCountries();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
 
-    // Clear error when user types
     if (errors[name]) {
-      setErrors({
-        ...errors,
+      setErrors((prev) => ({
+        ...prev,
         [name]: null,
-      });
+      }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.id.trim()) {
-      newErrors.id = "Worker ID is required";
-    }
-
-    if (!formData.firstName.trim()) {
+    if (!formData.firstName.trim())
       newErrors.firstName = "First name is required";
-    }
-
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
-    }
-
+    if (!formData.secondName.trim())
+      newErrors.secondName = "Second name is required";
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Email is invalid";
     }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
+    if (!formData.password || formData.password.length < 6)
       newErrors.password = "Password must be at least 6 characters";
-    }
-
-    if (!formData.status.trim()) {
-      newErrors.status = "Status is required";
-    }
+    if (!formData.country) newErrors.country = "Country is required";
+    if (!formData.devType) newErrors.devType = "Developer type is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -73,49 +88,45 @@ export default function WorkerCreate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     setIsSubmitting(true);
     setSuccessMessage("");
 
     try {
-      const response = await postFetcher(enpoints.worker.create, formData); //  API endpoint
-      console.log("Worker created successfully:", response);
+      const payload = {
+        ...formData,
+        userType: "worker", // hardcoded
+      };
 
-      // Show success message
-      setSuccessMessage("Worker created successfully!");
+      const response = await postFetcher(enpoints.user.create, payload);
+      console.log("User created:", response);
+      setSuccessMessage("User created successfully!");
 
-      // Reset form
       setFormData({
-        id: "",
         firstName: "",
-        lastName: "",
+        secondName: "",
         email: "",
         password: "",
-        status: "",
-        expression: ""
+        devType: "",
+        country: "",
       });
-    } catch (error) {
-      console.error("Error creating worker:", error);
-      setErrors({ apiError: "Failed to create worker. Please try again." });
+    } catch (err) {
+      console.error("Error creating user:", err);
+      setErrors({ apiError: "Failed to create user. Try again." });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   return (
     <Container maxWidth="sm">
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
         <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
           <PersonAdd color="primary" />
-          <Typography variant="h5" component="h1">
-            Create Worker Account
-          </Typography>
+          <Typography variant="h5">Create Worker Account</Typography>
         </Box>
 
         {successMessage && (
@@ -123,7 +134,6 @@ export default function WorkerCreate() {
             {successMessage}
           </Typography>
         )}
-
         {errors.apiError && (
           <Typography color="error.main" sx={{ mb: 2 }}>
             {errors.apiError}
@@ -132,8 +142,6 @@ export default function WorkerCreate() {
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <Grid container spacing={2}>
-            
-
             <Grid item xs={12} sm={6}>
               <TextField
                 name="firstName"
@@ -148,22 +156,57 @@ export default function WorkerCreate() {
                 size="medium"
               />
             </Grid>
-
             <Grid item xs={12} sm={6}>
               <TextField
-                name="lastName"
-                label="Last Name"
-                value={formData.lastName}
+                name="secondName"
+                label="Second Name"
+                value={formData.secondName}
                 onChange={handleChange}
-                error={!!errors.lastName}
-                helperText={errors.lastName}
+                error={!!errors.secondName}
+                helperText={errors.secondName}
                 fullWidth
                 required
                 margin="normal"
                 size="medium"
               />
             </Grid>
-
+            <Grid item xs={12}>
+              <Autocomplete
+                options={countries}
+                getOptionLabel={(option) => option.name}
+                value={
+                  countries.find((c) => c.name === formData.country) || null
+                }
+                onChange={(e, value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    country: value ? value.name : "",
+                  }))
+                }
+                renderOption={(props, option) => (
+                  <Box component="li" {...props}>
+                    <img
+                      src={option.flag}
+                      alt=""
+                      width="20"
+                      style={{ marginRight: 10 }}
+                    />
+                    {option.name}
+                  </Box>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Country"
+                    error={!!errors.country}
+                    helperText={errors.country}
+                    required
+                    margin="normal"
+                    fullWidth
+                  />
+                )}
+              />
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 name="email"
@@ -179,7 +222,6 @@ export default function WorkerCreate() {
                 size="medium"
               />
             </Grid>
-
             <Grid item xs={12}>
               <TextField
                 name="password"
@@ -196,7 +238,7 @@ export default function WorkerCreate() {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton aria-label="toggle password visibility" onClick={togglePasswordVisibility} edge="end">
+                      <IconButton onClick={togglePasswordVisibility} edge="end">
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
@@ -204,27 +246,52 @@ export default function WorkerCreate() {
                 }}
               />
             </Grid>
-
-
             <Grid item xs={12}>
-              <TextField
-                name="expression"
-                label="Description"
-                multiline
-                rows={3}
-                value={formData.expression}
-                onChange={handleChange}
-                error={!!errors.expression}
-                helperText={errors.expression}
-                fullWidth
-                margin="normal"
-                size="medium"
+              <Autocomplete
+                options={[
+                  { label: "Software Developing", value: 1 },
+                  { label: "Data Analytics", value: 2 },
+                  { label: "Testing", value: 3 },
+                  { label: "DevOps", value: 4 },
+                ]}
+                getOptionLabel={(option) => option.label}
+                value={
+                  [
+                    { label: "Software Developing", value: 1 },
+                    { label: "Data Analytics", value: 2 },
+                    { label: "Testing", value: 3 },
+                    { label: "DevOps", value: 4 },
+                  ].find((opt) => opt.value === formData.devType) || null
+                }
+                onChange={(e, newValue) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    devType: newValue ? newValue.value : "",
+                  }));
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Developer Type"
+                    error={!!errors.devType}
+                    helperText={errors.devType}
+                    required
+                    margin="normal"
+                    fullWidth
+                  />
+                )}
               />
             </Grid>
           </Grid>
 
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }} disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Worker"}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2, py: 1.5 }}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Creating..." : "Create Account"}
           </Button>
         </Box>
       </Paper>
