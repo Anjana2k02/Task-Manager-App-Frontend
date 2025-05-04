@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getFetcher, enpoints } from "../../utils/axios"
+import { getFetcher, enpoints, getFetcherPramspdf } from "../../utils/axios"
 
 import {
   Box,
@@ -23,16 +23,18 @@ import {
   CardContent,
   createTheme,
   ThemeProvider,
+  Snackbar,
+  Alert,
 } from "@mui/material"
 
 import {
   Search as SearchIcon,
-  Add as AddIcon,
   FilterList as FilterListIcon,
   Refresh as RefreshIcon,
   People as PeopleIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
+  Download as DownloadIcon,
 } from "@mui/icons-material"
 
 const WorkerTable = () => {
@@ -41,6 +43,11 @@ const WorkerTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  })
 
   const theme = createTheme({
     palette: {
@@ -96,6 +103,61 @@ const WorkerTable = () => {
 
   const activeWorkers = workers.filter((worker) => worker.status === "Active")
   const inactiveWorkers = workers.filter((worker) => worker.status === "Inactive")
+
+  // Download PDF report function
+  const downloadPDF = async () => {
+    try {
+      // Show loading message
+      setSnackbar({
+        open: true,
+        message: "Generating report...",
+        severity: "info",
+      })
+
+      // Call the API to get the PDF report
+      const response = await getFetcherPramspdf(enpoints.worker.report)
+      console.log("PDF Response:", response)
+
+      // Create a blob from the PDF data
+      const blob = new Blob([response.data], { type: "application/pdf" })
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob)
+
+      // Create a link element
+      const link = document.createElement("a")
+      link.href = url
+      link.setAttribute("download", "Worker Report.pdf")
+
+      // Append to the document, click it, and remove it
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+
+      // Show success message
+      setSnackbar({
+        open: true,
+        message: "Report downloaded successfully",
+        severity: "success",
+      })
+    } catch (error) {
+      console.error("Download error:", error)
+
+      // Show error message
+      setSnackbar({
+        open: true,
+        message: "Failed to download report. Please try again.",
+        severity: "error",
+      })
+    }
+  }
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return
+    }
+    setSnackbar({ ...snackbar, open: false })
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -243,7 +305,12 @@ const WorkerTable = () => {
             }}
           />
           <Box sx={{ display: "flex", gap: 1 }}>
-            <Button variant="contained"  sx={{ backgroundColor: theme.palette.primary.main }}>
+            <Button
+              variant="contained"
+              startIcon={<DownloadIcon />}
+              onClick={downloadPDF}
+              sx={{ backgroundColor: theme.palette.primary.main }}
+            >
               Download
             </Button>
             <Button
@@ -364,6 +431,13 @@ const WorkerTable = () => {
           />
         </Paper>
       </Box>
+
+      {/* Success/Error Snackbar */}
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   )
 }
