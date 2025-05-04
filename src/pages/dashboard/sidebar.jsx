@@ -81,6 +81,7 @@ const Sidebarmain = ({ open, onClose }) => {
         { text: 'Supervisor', path: '/supervisor/list' },
         { text: 'Create', path: '/supervisor/create' },
         { text: 'Manage', path: '/supervisor/manage' },
+        {text: 'Worker list', path: '/supervisor/workerlist'},
       ],
     },
     {
