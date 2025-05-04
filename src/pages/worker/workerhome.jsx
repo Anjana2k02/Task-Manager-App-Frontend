@@ -1,290 +1,249 @@
-import { useEffect, useState } from "react";
+import React, { useState } from 'react';
 import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Container,
-  Paper,
-  InputAdornment,
-  IconButton,
-  Autocomplete,
-} from "@mui/material";
-import Grid from "@mui/material/Grid";
-import { Visibility, VisibilityOff, PersonAdd } from "@mui/icons-material";
-import { enpoints, postFetcher } from "../../utils/axios";
+  AppBar, Avatar, Box, Button, Container, Grid, IconButton, InputAdornment,
+  Paper, TextField, Toolbar, Typography
+} from '@mui/material';
+import { Search, Notifications } from '@mui/icons-material';
 
-export default function WorkerCreate() {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    devType: "",
-    country: "",
-  });
+// Mocked User Data
+const userData = {
+  firstName: "Alexa",
+  lastName: "Rawles",
+  email: "alexa.rawles@example.com",
+  country: "USA",
+  status: "Happy",
+  pendingTasks: ["Fix login bug"],
+  completedTasks: ["Refactor dashboard"]
+};
 
-  const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [countries, setCountries] = useState([]);
+const WorkerHome = () => {
+  const [editMode, setEditMode] = useState(false);
+  const [formValues, setFormValues] = useState({ ...userData });
 
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const res = await fetch("https://restcountries.com/v3.1/all");
-        const data = await res.json();
-        const parsed = data
-          .map((c) => ({
-            name: c.name.common,
-            flag: c.flags?.png || "",
-          }))
-          .sort((a, b) => a.name.localeCompare(b.name));
-        setCountries(parsed);
-      } catch (err) {
-        console.error("Error fetching countries:", err);
-      }
-    };
-
-    fetchCountries();
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: null,
-      }));
-    }
+  const handleChange = (field) => (e) => {
+    setFormValues(prev => ({ ...prev, [field]: e.target.value }));
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
-    }
-    if (!formData.password || formData.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters";
-    if (!formData.country) newErrors.country = "Country is required";
-    if (!formData.devType) newErrors.devType = "Developer type is required";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleEdit = () => setEditMode(true);
+  const handleCancel = () => {
+    setFormValues({ ...userData });
+    setEditMode(false);
+  };
+  const handleSave = () => {
+    // Here you would handle form submission
+    console.log("Saved Data:", formValues);
+    setEditMode(false);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
-    setSuccessMessage("");
-
-    try {
-      const response = await postFetcher(enpoints.worker.create, formData);
-      console.log("Worker created:", response);
-      setSuccessMessage("Worker created successfully!");
-
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        devType: "",
-        country: "",
-      });
-    } catch (err) {
-      console.error("Error creating worker:", err);
-      setErrors({ apiError: "Failed to create worker. Try again." });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+  const currentDate = "Tue, 07 June 2022";
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-        <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
-          <PersonAdd color="primary" />
-          <Typography variant="h5">Create Worker Account</Typography>
-        </Box>
-
-        {successMessage && (
-          <Typography color="success.main" sx={{ mb: 2 }}>
-            {successMessage}
-          </Typography>
-        )}
-        {errors.apiError && (
-          <Typography color="error.main" sx={{ mb: 2 }}>
-            {errors.apiError}
-          </Typography>
-        )}
-
-        <Box component="form" onSubmit={handleSubmit} noValidate>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="firstName"
-                label="First Name"
-                value={formData.firstName}
-                onChange={handleChange}
-                error={!!errors.firstName}
-                helperText={errors.firstName}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="lastName"
-                label="Last Name"
-                value={formData.lastName}
-                onChange={handleChange}
-                error={!!errors.lastName}
-                helperText={errors.lastName}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Autocomplete
-                options={countries}
-                getOptionLabel={(option) => option.name}
-                value={countries.find((c) => c.name === formData.country) || null}
-                onChange={(e, value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    country: value ? value.name : "",
-                  }))
+    <Box sx={{ display: 'flex' }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          bgcolor: '#ffffff',
+          minHeight: '100vh',
+        }}
+      >
+        {/* Top Navigation */}
+        <AppBar
+          position="static"
+          color="transparent"
+          elevation={0}
+          sx={{
+            borderBottom: '1px solid #eaeaea',
+            backgroundColor: 'white'
+          }}
+        >
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+              Welcome, {formValues.firstName}
+              <Typography variant="body2" color="text.secondary">
+                {currentDate}
+              </Typography>
+            </Typography>
+            <TextField
+              placeholder="Search"
+              size="small"
+              sx={{
+                mr: 2,
+                width: 300,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '20px',
                 }
-                renderOption={(props, option) => (
-                  <Box component="li" {...props}>
-                    <img
-                      src={option.flag}
-                      alt=""
-                      width="20"
-                      style={{ marginRight: 10 }}
-                    />
-                    {option.name}
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <IconButton sx={{ mr: 2 }}>
+              <Notifications />
+            </IconButton>
+            <Avatar src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-tC1iDkI9Z9qyWGGtoMpzZuIVRpgZ80.png" />
+          </Toolbar>
+        </AppBar>
+
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          {/* Banner */}
+          <Paper
+            sx={{
+              p: 2,
+              mb: 4,
+              height: 80,
+              background: 'linear-gradient(90deg, rgba(173,216,230,1) 0%, rgba(255,228,196,1) 100%)',
+              borderRadius: 2
+            }}
+          />
+
+          {/* Profile Info */}
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                  {formValues.firstName} {formValues.lastName}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Software Engineer
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    {formValues.status}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Your Status
+                  </Typography>
+                </Box>
+                {!editMode ? (
+                  <Button
+                    variant="contained"
+                    onClick={handleEdit}
+                    sx={{
+                      backgroundColor: '#3f80ea',
+                      '&:hover': {
+                        backgroundColor: '#2d6ad9',
+                      }
+                    }}
+                  >
+                    Edit
+                  </Button>
+                ) : (
+                  <Box display="flex" gap={2}>
+                    <Button variant="outlined" color="error" onClick={handleCancel}>
+                      Cancel
+                    </Button>
+                    <Button variant="contained" color="primary" onClick={handleSave}>
+                      Save
+                    </Button>
                   </Box>
                 )}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Country"
-                    error={!!errors.country}
-                    helperText={errors.country}
-                    required
-                    margin="normal"
-                    fullWidth
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="email"
-                label="Email Address"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                error={!!errors.email}
-                helperText={errors.email}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="password"
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                value={formData.password}
-                onChange={handleChange}
-                error={!!errors.password}
-                helperText={errors.password}
-                fullWidth
-                required
-                margin="normal"
-                size="medium"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={togglePasswordVisibility} edge="end">
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Autocomplete
-                options={[
-                  { label: "Software Developing", value: 1 },
-                  { label: "Data Analytics", value: 2 },
-                  { label: "Testing", value: 3 },
-                  { label: "DevOps", value: 4 },
-                ]}
-                getOptionLabel={(option) => option.label}
-                value={
-                  [
-                    { label: "Software Developing", value: 1 },
-                    { label: "Data Analytics", value: 2 },
-                    { label: "Testing", value: 3 },
-                    { label: "DevOps", value: 4 },
-                  ].find((opt) => opt.value === formData.devType) || null
-                }
-                onChange={(e, newValue) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    devType: newValue ? newValue.value : "",
-                  }));
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Developer Type"
-                    error={!!errors.devType}
-                    helperText={errors.devType}
-                    required
-                    margin="normal"
-                    fullWidth
-                  />
-                )}
-              />
+              </Box>
             </Grid>
           </Grid>
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2, py: 1.5 }}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Creating..." : "Create Worker"}
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+          {/* Form Fields */}
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="First Name"
+                value={formValues.firstName}
+                onChange={handleChange('firstName')}
+                size="small"
+                InputProps={{ readOnly: !editMode }}
+                sx={{
+                  backgroundColor: '#f8f9fa',
+                  '& .MuiOutlinedInput-root': { borderRadius: '8px' },
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Last Name"
+                value={formValues.lastName}
+                onChange={handleChange('lastName')}
+                size="small"
+                InputProps={{ readOnly: !editMode }}
+                sx={{
+                  backgroundColor: '#f8f9fa',
+                  '& .MuiOutlinedInput-root': { borderRadius: '8px' },
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Email"
+                value={formValues.email}
+                onChange={handleChange('email')}
+                size="small"
+                InputProps={{ readOnly: !editMode }}
+                sx={{
+                  backgroundColor: '#f8f9fa',
+                  '& .MuiOutlinedInput-root': { borderRadius: '8px' },
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Country"
+                value={formValues.country}
+                onChange={handleChange('country')}
+                size="small"
+                InputProps={{ readOnly: !editMode }}
+                sx={{
+                  backgroundColor: '#f8f9fa',
+                  '& .MuiOutlinedInput-root': { borderRadius: '8px' },
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  Task Pending
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ p: 1, bgcolor: '#f1f1f1', borderRadius: 1 }}>
+                  {formValues.pendingTasks[0]}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  Task Completed
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ p: 1, bgcolor: '#f1f1f1', borderRadius: 1 }}>
+                  {formValues.completedTasks[0]}
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
+
+          {/* Decorative Bottom Circle */}
+          <Box
+            sx={{
+              height: 50,
+              width: 50,
+              borderRadius: '50%',
+              bgcolor: '#f0f8ff',
+              mt: 4
+            }}
+          />
+        </Container>
+      </Box>
+    </Box>
   );
-}
+};
+
+export default WorkerHome;
