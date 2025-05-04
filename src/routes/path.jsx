@@ -10,6 +10,8 @@ const UserManage = lazy(() => import("../pages/user/manage"));
 const WorkerList = lazy(() => import("../pages/worker/list"));
 const WorkerCreate = lazy(() => import("../pages/worker/create"));
 const WorkerManage = lazy(() => import("../pages/worker/manage"));
+const WorkerProfile = lazy(() => import("../pages/worker/workerprofile"));
+const WorkerHome = lazy(() => import("../pages/worker/workerhome"));
 
 const AdminDashboard = lazy(() => import("../pages/admin/admindashboard"));
 const TaskReassignList = lazy(() => import("../pages/admin/requestlist"));
@@ -99,6 +101,8 @@ export default function Paths() {
           <Route path="/worker/list" element={<WorkerList />} />
           <Route path="/worker/create" element={<WorkerCreate />} />
           <Route path="/worker/manage" element={<WorkerManage />} />
+          <Route path="/worker/workerprofile" element={<WorkerProfile />} />
+          <Route path="/worker/workerhome" element={<WorkerHome />} />
 
           {/* Task Routes */}
           <Route path="/task/list" element={<TaskList />} />
@@ -114,3 +118,6 @@ export default function Paths() {
     </ErrorBoundary>
   );
 }
+
+
+
