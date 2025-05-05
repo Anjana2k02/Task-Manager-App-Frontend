@@ -116,10 +116,10 @@ const WorkerTable = () => {
     {
       title: "Pending Tasks",
       count: pendingTasks.length,
-      icon: <CancelIcon sx={{ fontSize: 30, color: "#f57f17" }} />,
-      borderColor: "#f57f17",
+      icon: <CancelIcon sx={{ fontSize: 30, color: "#c62828" }} />,
+      borderColor: "#c62828",
       bgColor: "#fff8e1",
-      textColor: "#f57f17",
+      textColor: "#c62828",
     },
   ]
 
