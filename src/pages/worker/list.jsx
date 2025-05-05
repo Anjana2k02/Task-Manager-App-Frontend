@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getFetcher, enpoints } from "../../utils/axios"
+import { getFetcher, enpoints, getFetcherPramspdf, getFetcherPrams } from "../../utils/axios"
 
 import {
   Box,
@@ -23,16 +23,18 @@ import {
   CardContent,
   createTheme,
   ThemeProvider,
+  Snackbar,
+  Alert,
 } from "@mui/material"
 
 import {
   Search as SearchIcon,
-  Add as AddIcon,
   FilterList as FilterListIcon,
   Refresh as RefreshIcon,
   People as PeopleIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
+  Download as DownloadIcon,
 } from "@mui/icons-material"
 
 const WorkerTable = () => {
@@ -41,6 +43,12 @@ const WorkerTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
+  const [users, setUsers] = useState([])
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  })
 
   const theme = createTheme({
     palette: {
@@ -54,7 +62,7 @@ const WorkerTable = () => {
       },
     },
   })
-
+ // worker api get all 
   useEffect(() => {
     const fetchWorkers = async () => {
       setLoading(true)
@@ -123,6 +131,63 @@ const WorkerTable = () => {
     },
   ]
 
+  // Download PDF report function
+  const downloadPDF = async () => {
+    try {
+      // Show loading message
+      setSnackbar({
+        open: true,
+        message: "Generating task report...",
+        severity: "info",
+      })
+
+      // Call the API to get the PDF report
+      const response = await getFetcherPramspdf(enpoints.worker.taskReport)
+      console.log("PDF Response:", response)
+
+      // Create a blob from the PDF data
+      const blob = new Blob([response.data], { type: "application/pdf" })
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob)
+
+      // Create a link element
+      const link = document.createElement("a")
+      link.href = url
+      link.setAttribute("download", "Worker Tasks Report.pdf")
+
+      // Append to the document, click it, and remove it
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+
+      // Show success message
+      setSnackbar({
+        open: true,
+        message: "Task report downloaded successfully",
+        severity: "success",
+      })
+    } catch (error) {
+      console.error("Download error:", error)
+
+      // Show error message
+      setSnackbar({
+        open: true,
+        message: "Failed to download task report. Please try again.",
+        severity: "error",
+      })
+    }
+  }
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return
+    }
+    setSnackbar({ ...snackbar, open: false })
+  }
+
+
+
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ padding: "24px" }}>
@@ -186,7 +251,12 @@ const WorkerTable = () => {
             }}
           />
           <Box sx={{ display: "flex", gap: 1 }}>
-            <Button variant="contained" sx={{ backgroundColor: theme.palette.primary.main }}>
+            <Button
+              variant="contained"
+              startIcon={<DownloadIcon />}
+              onClick={downloadPDF}
+              sx={{ backgroundColor: theme.palette.primary.main }}
+            >
               Download
             </Button>
             <Button
@@ -238,58 +308,56 @@ const WorkerTable = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredWorkers
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((worker, idx) => (
-                      <TableRow
-                        key={worker.id || idx}
-                        sx={{
-                          backgroundColor: idx % 2 === 0 ? "#fafafa" : "white",
-                          "&:hover": { backgroundColor: "#f0f7ff" },
-                        }}
-                      >
-                        <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
-                          {worker.firstName}
-                        </TableCell>
-                        <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
-                          {worker.lastName}
-                        </TableCell>
-                        <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
-                          {worker.email}
-                        </TableCell>
-                        <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
-                          {worker.country}
-                        </TableCell>
-                        <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
-                          {worker.expression}
-                        </TableCell>
-                        <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
-                          <Box
-                            sx={{
-                              backgroundColor:
-                                worker.status === "Active"
-                                  ? "#e8f5e9"
-                                  : worker.status === "Inactive"
+                  filteredWorkers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((worker, idx) => (
+                    <TableRow
+                      key={worker.id || idx}
+                      sx={{
+                        backgroundColor: idx % 2 === 0 ? "#fafafa" : "white",
+                        "&:hover": { backgroundColor: "#f0f7ff" },
+                      }}
+                    >
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        {worker.firstName}
+                      </TableCell>
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        {worker.lastName}
+                      </TableCell>
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        {worker.email}
+                      </TableCell>
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        {worker.country}
+                      </TableCell>
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        {worker.expression}
+                      </TableCell>
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        <Box
+                          sx={{
+                            backgroundColor:
+                              worker.status === "Active"
+                                ? "#e8f5e9"
+                                : worker.status === "Inactive"
                                   ? "#ffebee"
                                   : "#fff8e1",
-                              color:
-                                worker.status === "Active"
-                                  ? "#2e7d32"
-                                  : worker.status === "Inactive"
+                            color:
+                              worker.status === "Active"
+                                ? "#2e7d32"
+                                : worker.status === "Inactive"
                                   ? "#c62828"
                                   : "#f57f17",
-                              borderRadius: 1,
-                              px: 1,
-                              py: 0.5,
-                              display: "inline-block",
-                              fontWeight: "medium",
-                            }}
-                          >
-                            {worker.status}
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                            borderRadius: 1,
+                            px: 1,
+                            py: 0.5,
+                            display: "inline-block",
+                            fontWeight: "medium",
+                          }}
+                        >
+                          {worker.status}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
@@ -306,6 +374,13 @@ const WorkerTable = () => {
           />
         </Paper>
       </Box>
+
+      {/* Success/Error Snackbar */}
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   )
 }
