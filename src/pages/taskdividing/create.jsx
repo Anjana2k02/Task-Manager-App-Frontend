@@ -6,28 +6,24 @@ import {
   Typography,
   Container,
   Paper,
-  FormControl,
-  InputLabel,
-  Select,
+  Autocomplete,
   MenuItem,
-  Grid,
-  Avatar,
-  ListItemText,
 } from "@mui/material";
-import { PersonAdd } from "@mui/icons-material";
-import { enpoints, postFetcher } from "../../utils/axios";
-import DatePicker from "@mui/lab/DatePicker";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import Grid from "@mui/material/Grid";
+import { Assignment } from "@mui/icons-material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import { postFetcher, enpoints } from "../../utils/axios";
 
 export default function TaskCreate() {
   const [formData, setFormData] = useState({
     taskTitle: "",
     taskDescription: "",
-    dueDate: null,
-    priority: "",
     assignedUser: "",
-    workingStatus: "pending",
+    priority: "",
+    dueDate: null,
   });
 
   const [errors, setErrors] = useState({});
@@ -35,18 +31,17 @@ export default function TaskCreate() {
   const [successMessage, setSuccessMessage] = useState("");
   const [users, setUsers] = useState([]);
 
-  // Fetch users for assignment
+  // Fetch users for assignment dropdown
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(enpoints.user.list);
+        const response = await fetch("/api/users");
         const data = await response.json();
         setUsers(data);
       } catch (err) {
         console.error("Error fetching users:", err);
       }
     };
-
     fetchUsers();
   }, []);
 
@@ -65,15 +60,30 @@ export default function TaskCreate() {
     }
   };
 
+  const handleDateChange = (date) => {
+    setFormData((prev) => ({
+      ...prev,
+      dueDate: date,
+    }));
+
+    if (errors.dueDate) {
+      setErrors((prev) => ({
+        ...prev,
+        dueDate: null,
+      }));
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.taskTitle.trim()) newErrors.taskTitle = "Title is required";
-    if (!formData.taskDescription.trim())
-      newErrors.taskDescription = "Description is required";
+    if (!formData.taskTitle.trim()) newErrors.taskTitle = "Task title is required";
+    if (!formData.taskDescription.trim()) newErrors.taskDescription = "Description is required";
+    if (!formData.assignedUser) newErrors.assignedUser = "Please assign a user";
+    if (!formData.priority) newErrors.priority = "Please select priority";
     if (!formData.dueDate) newErrors.dueDate = "Due date is required";
-    if (!formData.priority) newErrors.priority = "Priority is required";
-    if (!formData.assignedUser)
-      newErrors.assignedUser = "Assigned user is required";
+    else if (dayjs(formData.dueDate).isBefore(dayjs(), 'day')) {
+      newErrors.dueDate = "Due date cannot be in the past";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -89,185 +99,157 @@ export default function TaskCreate() {
     try {
       const payload = {
         ...formData,
-        dueDate: formData.dueDate.toISOString(),
+        dueDate: dayjs(formData.dueDate).toISOString(),
       };
 
       const response = await postFetcher(enpoints.task.create, payload);
       console.log("Task created:", response);
       setSuccessMessage("Task created successfully!");
 
+      // Reset form
       setFormData({
         taskTitle: "",
         taskDescription: "",
-        dueDate: null,
-        priority: "",
         assignedUser: "",
-        workingStatus: "pending",
+        priority: "",
+        dueDate: null,
       });
     } catch (err) {
       console.error("Error creating task:", err);
-      setErrors({ apiError: "Failed to create task. Try again." });
+      setErrors({ apiError: "Failed to create task. Please try again." });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Container maxWidth="md">
-      <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-        <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
-          <PersonAdd color="primary" />
-          <Typography variant="h5">Create New Task</Typography>
-        </Box>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Container maxWidth="sm">
+        <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
+          <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
+            <Assignment color="primary" />
+            <Typography variant="h5">Create New Task  - T01 </Typography>
+          </Box>
 
-        {successMessage && (
-          <Typography color="success.main" sx={{ mb: 2 }}>
-            {successMessage}
-          </Typography>
-        )}
-        {errors.apiError && (
-          <Typography color="error.main" sx={{ mb: 2 }}>
-            {errors.apiError}
-          </Typography>
-        )}
+          {successMessage && (
+            <Typography color="success.main" sx={{ mb: 2 }}>
+              {successMessage}
+            </Typography>
+          )}
+          {errors.apiError && (
+            <Typography color="error.main" sx={{ mb: 2 }}>
+              {errors.apiError}
+            </Typography>
+          )}
 
-        <Box component="form" onSubmit={handleSubmit} noValidate>
-          <Grid container spacing={3}>
-            {/* Task Title */}
-            <Grid item xs={12}>
-              <TextField
-                name="taskTitle"
-                label="Task Title"
-                value={formData.taskTitle}
-                onChange={handleChange}
-                error={!!errors.taskTitle}
-                helperText={errors.taskTitle}
-                fullWidth
-                required
-                size="medium"
-              />
-            </Grid>
+          <Box component="form" onSubmit={handleSubmit} noValidate>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  name="taskTitle"
+                  label="Task Title"
+                  value={formData.taskTitle}
+                  onChange={handleChange}
+                  error={!!errors.taskTitle}
+                  helperText={errors.taskTitle}
+                  fullWidth
+                  required
+                  margin="normal"
+                />
+              </Grid>
 
-            {/* Task Description */}
-            <Grid item xs={12}>
-              <TextField
-                name="taskDescription"
-                label="Task Description"
-                value={formData.taskDescription}
-                onChange={handleChange}
-                error={!!errors.taskDescription}
-                helperText={errors.taskDescription}
-                fullWidth
-                required
-                size="medium"
-                multiline
-                rows={4}
-              />
-            </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  name="taskDescription"
+                  label="Task Description"
+                  value={formData.taskDescription}
+                  onChange={handleChange}
+                  error={!!errors.taskDescription}
+                  helperText={errors.taskDescription}
+                  fullWidth
+                  required
+                  margin="normal"
+                  multiline
+                  rows={4}
+                />
+              </Grid>
 
-            {/* Due Date */}
-            <Grid item xs={12} md={6}>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DatePicker
-                  label="Due Date"
-                  value={formData.dueDate}
-                  onChange={(newValue) => {
-                    setFormData((prev) => ({
+              <Grid item xs={12}>
+                <Autocomplete
+                  options={users}
+                  getOptionLabel={(user) => user.name || user.email}
+                  value={users.find(user => user.id === formData.assignedUser) || null}
+                  onChange={(e, newValue) => {
+                    setFormData(prev => ({
                       ...prev,
-                      dueDate: newValue,
+                      assignedUser: newValue ? newValue.id : ""
                     }));
                   }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
+                      label="Assign To"
+                      error={!!errors.assignedUser}
+                      helperText={errors.assignedUser}
+                      required
+                      margin="normal"
                       fullWidth
+                    />
+                  )}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  name="priority"
+                  label="Priority"
+                  value={formData.priority}
+                  onChange={handleChange}
+                  error={!!errors.priority}
+                  helperText={errors.priority}
+                  fullWidth
+                  required
+                  margin="normal"
+                >
+                  <MenuItem value="High">High</MenuItem>
+                  <MenuItem value="Critical">Critical</MenuItem>
+                  <MenuItem value="Low">Low</MenuItem>
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <DatePicker
+                  label="Due Date"
+                  value={formData.dueDate}
+                  onChange={handleDateChange}
+                  minDate={dayjs()}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      margin="normal"
                       required
                       error={!!errors.dueDate}
                       helperText={errors.dueDate}
                     />
                   )}
                 />
-              </LocalizationProvider>
+              </Grid>
             </Grid>
 
-            {/* Priority */}
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth required>
-                <InputLabel>Priority</InputLabel>
-                <Select
-                  name="priority"
-                  value={formData.priority}
-                  label="Priority"
-                  onChange={handleChange}
-                  error={!!errors.priority}
-                >
-                  <MenuItem value="critical">Critical</MenuItem>
-                  <MenuItem value="high">High</MenuItem>
-                  <MenuItem value="standard">Standard</MenuItem>
-                </Select>
-                {errors.priority && (
-                  <Typography color="error" variant="caption">
-                    {errors.priority}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
-            {/* Assigned User */}
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth required>
-                <InputLabel>Assigned User</InputLabel>
-                <Select
-                  name="assignedUser"
-                  value={formData.assignedUser}
-                  label="Assigned User"
-                  onChange={handleChange}
-                  error={!!errors.assignedUser}
-                  renderValue={(selected) => {
-                    const user = users.find(u => u.id === selected);
-                    return user ? `${user.firstName} ${user.secondName}` : '';
-                  }}
-                >
-                  {users.map((user) => (
-                    <MenuItem key={user.id} value={user.id}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Avatar sx={{ width: 32, height: 32 }}>
-                          {user.firstName.charAt(0)}{user.secondName.charAt(0)}
-                        </Avatar>
-                        <ListItemText 
-                          primary={`${user.firstName} ${user.secondName}`}
-                          secondary={user.email}
-                        />
-                      </Box>
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.assignedUser && (
-                  <Typography color="error" variant="caption">
-                    {errors.assignedUser}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
-           
-
-            {/* Submit Button */}
-            <Grid item xs={12}>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                size="large"
-                sx={{ mt: 2, py: 1.5 }}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Creating..." : "Create Task"}
-              </Button>
-            </Grid>
-          </Grid>
-        </Box>
-      </Paper>
-    </Container>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2, py: 1.5 }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating..." : "Create Task"}
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    </LocalizationProvider>
   );
 }

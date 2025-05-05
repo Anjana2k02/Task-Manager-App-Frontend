@@ -23,6 +23,7 @@ const SupervisorList = lazy(() => import("../pages/supervisor/list"));
 const SupervisorCreate = lazy(() => import("../pages/supervisor/create"));
 const SupervisorManage = lazy(() => import("../pages/supervisor/manage"));
 const Supervisorworkerlist = lazy(() => import("../pages/supervisor/workerlist"));
+const SupervisorHome = lazy(() => import("../pages/supervisor/supervisorhome"));
 
 const TaskList = lazy(() => import("../pages/task/list"));
 const TaskCreate = lazy(() => import("../pages/task/create"));
@@ -98,6 +99,7 @@ export default function Paths() {
           <Route path="/supervisor/create" element={<SupervisorCreate />} />
           <Route path="/supervisor/manage" element={<SupervisorManage />} />
           <Route path="/supervisor/workerlist"element={<Supervisorworkerlist/>} />
+          <Route path="/supervisor/supervisorhome" element={<SupervisorHome />} />
 
           {/* Worker Routes */}
           <Route path="/worker/list" element={<WorkerList />} />
