@@ -34,6 +34,8 @@ const TaskdiList = lazy(() => import("../pages/taskdividing/list"));
 const TaskdiCreate = lazy(() => import("../pages/taskdividing/create"));
 const TaskdiManage = lazy(() => import("../pages/taskdividing/manage"));
 
+const CalenderView = lazy(() => import("../pages/calender/calender"));
+
 // Loading fallback component
 const Loading = () => (
   <Box
@@ -118,6 +120,11 @@ export default function Paths() {
           <Route path="/taskdi/list" element={<TaskdiList />} />
           <Route path="/taskdi/create" element={<TaskdiCreate />} />
           <Route path="/taskdi/manage" element={<TaskdiManage />} />
+
+          {/* Calendar Route */}
+          <Route path="/calender/view" element={<CalenderView />} />
+
+          {/* Auth Controller */}
         </Routes>
       </Suspense>
     </ErrorBoundary>
