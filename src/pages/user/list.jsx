@@ -45,24 +45,24 @@ const UserTable = () => {
     fetchUsers();
   }, []);
 
-  useEffect(() => {
-    const source = new EventSource("http://localhost:8000/stream_status");
+  // useEffect(() => {
+  //   const source = new EventSource("http://localhost:8000/stream_status");
   
-    source.onmessage = (event) => {
-      const newStatus = event.data; // Remove parseInt — it's a string like "Happy"
-      console.log("🔥 New Emotion Status:", newStatus);
-      setStatus(newStatus);
-    };
+  //   source.onmessage = (event) => {
+  //     const newStatus = event.data; // Remove parseInt — it's a string like "Happy"
+  //     console.log("🔥 New Emotion Status:", newStatus);
+  //     setStatus(newStatus);
+  //   };
   
-    source.onerror = (err) => {
-      console.error("❌ SSE connection error:", err);
-      source.close();
-    };
+  //   source.onerror = (err) => {
+  //     console.error("❌ SSE connection error:", err);
+  //     source.close();
+  //   };
   
-    return () => {
-      source.close(); // Clean up on unmount
-    };
-  }, []);
+  //   return () => {
+  //     source.close(); // Clean up on unmount
+  //   };
+  // }, []);
   
 
   useEffect(() => {
