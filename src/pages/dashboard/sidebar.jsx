@@ -125,8 +125,8 @@ const Sidebarmain = () => {
       submenuKey: "my_tasks",
       color: colors.tasks,
       submenu: [
-        { text: "All Tasks", path: "/task/list" },
-        { text: "Task Overview", path: "/task/create" },
+        { text: "All Tasks", path: "/task/my-task-list" },
+        { text: "Task Overview", path: "/task/my-task-overview" },
       ],
     },
     {
