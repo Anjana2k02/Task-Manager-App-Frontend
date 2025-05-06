@@ -20,7 +20,7 @@ import {
 } from "@mui/material"
 import { Email, Lock, Visibility, VisibilityOff, Google, GitHub } from "@mui/icons-material"
 
-const UserLogin = () => {
+const UserLogin = ({ onLogin }) => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -31,7 +31,6 @@ const UserLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault()
 
-    // Basic validation
     if (!email || !password) {
       setError("Please enter both email and password")
       setShowError(true)
@@ -45,6 +44,7 @@ const UserLogin = () => {
       localStorage.setItem("userId", id)
       localStorage.setItem("userType", type)
 
+      if (onLogin) onLogin() // 🔥 Tell App to update auth state
       navigate("/supervisor/list")
     } catch (err) {
       setError("Invalid credentials. Please try again.")
@@ -67,27 +67,15 @@ const UserLogin = () => {
         backgroundSize: "400% 400%",
         animation: "gradient 15s ease infinite",
         "@keyframes gradient": {
-          "0%": {
-            backgroundPosition: "0% 50%",
-          },
-          "50%": {
-            backgroundPosition: "100% 50%",
-          },
-          "100%": {
-            backgroundPosition: "0% 50%",
-          },
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
         },
       }}
     >
       <CssBaseline />
       <Container component="main" maxWidth="xs">
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <Paper
             elevation={4}
             sx={{
