@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { CircularProgress, Box } from "@mui/material";
 
+const Calender = lazy(() => import("../pages/calender/calender"));
 
 const AuthController = lazy(() => import("../components/privateRoute"));
 const UserList = lazy(() => import("../pages/user/user"));
