@@ -13,6 +13,7 @@ const WorkerCreate = lazy(() => import("../pages/worker/create"));
 const WorkerManage = lazy(() => import("../pages/worker/manage"));
 const WorkerProfile = lazy(() => import("../pages/worker/workerprofile"));
 const WorkerHome = lazy(() => import("../pages/worker/workerhome"));
+const WorkerTask = lazy(() => import("../pages/worker/tasklist"));
 
 const AdminDashboard = lazy(() => import("../pages/admin/admindashboard"));
 const TaskReassignList = lazy(() => import("../pages/admin/requestlist"));
@@ -110,6 +111,8 @@ export default function Paths() {
           <Route path="/worker/manage" element={<WorkerManage />} />
           <Route path="/worker/workerprofile" element={<WorkerProfile />} />
           <Route path="/worker/workerhome" element={<WorkerHome />} />
+          <Route path="/worker/workertask" element={<WorkerTask />} />
+
 
           {/* Task Routes */}
           <Route path="/task/list" element={<TaskList />} />

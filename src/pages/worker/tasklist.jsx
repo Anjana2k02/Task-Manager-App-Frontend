@@ -27,7 +27,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import { getFetcher, getFetcherPramspdf, enpoints } from '../../utils/axios'; // Check spelling: endpoints not enpoints?
 
-const TaskdiList = () => {
+const WorkerTask = () => {
   const [tasks, setTasks] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -250,4 +250,4 @@ const TaskdiList = () => {
   );
 };
 
-export default TaskdiList;
+export default WorkerTask;
