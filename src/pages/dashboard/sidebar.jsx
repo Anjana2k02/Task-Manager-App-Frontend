@@ -140,6 +140,7 @@ const Sidebarmain = () => {
         { text: "Create", path: "/supervisor/create" },
         { text: "Manage", path: "/supervisor/manage" },
         { text: "Worker list", path: "/supervisor/workerlist" },
+        { text: "Worker Create", path: "/worker/create" },
         { text: "supervisor Home", path: "/supervisor/supervisorhome" },
       ],
     },
