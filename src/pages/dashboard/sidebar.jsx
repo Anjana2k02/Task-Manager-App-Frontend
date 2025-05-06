@@ -103,6 +103,7 @@ const Sidebarmain = () => {
         { text: "Manage", path: "/worker/manage" },
         { text: "Worker Profile", path: "/worker/workerprofile" },
         { text: "Worker Home", path: "/worker/workerhome" },
+        { text: "Worker Tasks", path: "/worker/tasklist" },
       ],
     },
     {

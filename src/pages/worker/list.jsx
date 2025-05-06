@@ -355,7 +355,7 @@ const WorkerTable = () => {
                               }}
                               MenuProps={{
                                 PaperProps: {
-                                  sx: { bgcolor: "white" },
+                                  sx: { bgcolor: "#94B4C1" },
                                 },
                               }}
                             >
