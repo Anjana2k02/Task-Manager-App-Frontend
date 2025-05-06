@@ -15,6 +15,9 @@ const WorkerProfile = lazy(() => import("../pages/worker/workerprofile"));
 const WorkerHome = lazy(() => import("../pages/worker/workerhome"));
 const WorkerTask = lazy(() => import("../pages/worker/tasklist"));
 
+const MyTaskList = lazy(() => import("../pages/myTask/list"));
+const MyTaskOverview = lazy(() => import("../pages/myTask/overview"));
+
 const AdminDashboard = lazy(() => import("../pages/admin/admindashboard"));
 const TaskReassignList = lazy(() => import("../pages/admin/requestlist"));
 const RequestForm = lazy(() => import("../pages/admin/requestcreate"));
@@ -118,6 +121,12 @@ export default function Paths() {
           <Route path="/task/list" element={<TaskList />} />
           <Route path="/task/create" element={<TaskCreate />} />
           <Route path="/task/manage" element={<TaskManage />} />
+
+          {/* my task */}
+          <Route path="/task/my-task-list" element={<MyTaskList />} />
+          <Route path="/task/my-task-overview" element={<MyTaskOverview />} />
+
+          {/* Auth Controller */}
 
           {/* Task Dividing Routes */}
           <Route path="/taskdi/list" element={<TaskdiList />} />

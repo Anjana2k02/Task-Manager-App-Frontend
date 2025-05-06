@@ -62,6 +62,16 @@ export const fetcher = async (args) => {
     return res;
   };
 
+  // give user to update task progress
+  export const patchProgressFetcher = async (id, progress, config) => {
+    const url = `/task/${id}/progress`;
+    const res = await axiosInstance.patch(url, null, {
+      params: { progress },
+      ...config,
+    });
+    return res.data;
+  };
+
   
   export const enpoints = {
 
