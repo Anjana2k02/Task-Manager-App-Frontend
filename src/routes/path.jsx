@@ -2,7 +2,8 @@ import React, { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { CircularProgress, Box } from "@mui/material";
 
-// Lazy-loaded pages
+
+const AuthController = lazy(() => import("../components/privateRoute"));
 const UserList = lazy(() => import("../pages/user/user"));
 const UserCreate = lazy(() => import("../pages/user/create"));
 const UserManage = lazy(() => import("../pages/user/manage"));
