@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getFetcher, enpoints, getFetcherPramspdf, getFetcherPrams } from "../../utils/axios"
+import { getFetcher, enpoints, getFetcherPramspdf } from "../../utils/axios"
 
 import {
   Box,
@@ -43,7 +43,6 @@ const WorkerTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
-  const [users, setUsers] = useState([])
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -62,7 +61,7 @@ const WorkerTable = () => {
       },
     },
   })
- // worker api get all 
+
   useEffect(() => {
     const fetchWorkers = async () => {
       setLoading(true)
@@ -80,7 +79,9 @@ const WorkerTable = () => {
     fetchWorkers()
   }, [])
 
-  const handleChangePage = (event, newPage) => setPage(newPage)
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage)
+  }
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(Number.parseInt(event.target.value, 10))
@@ -100,36 +101,8 @@ const WorkerTable = () => {
       worker.country?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const allTasks = workers.flatMap((worker) => worker.tasks || [])
-  const completedTasks = allTasks.filter((task) => task.status === "Completed")
-  const pendingTasks = allTasks.filter((task) => task.status === "Pending")
-
-  const taskCards = [
-    {
-      title: "Total Tasks",
-      count: allTasks.length,
-      icon: <PeopleIcon sx={{ fontSize: 30, color: theme.palette.primary.main }} />,
-      borderColor: theme.palette.primary.main,
-      bgColor: theme.palette.secondary.main,
-      textColor: theme.palette.primary.main,
-    },
-    {
-      title: "Completed Tasks",
-      count: completedTasks.length,
-      icon: <CheckCircleIcon sx={{ fontSize: 30, color: "#2e7d32" }} />,
-      borderColor: "#2e7d32",
-      bgColor: "#e8f5e9",
-      textColor: "#2e7d32",
-    },
-    {
-      title: "Pending Tasks",
-      count: pendingTasks.length,
-      icon: <CancelIcon sx={{ fontSize: 30, color: "#c62828" }} />,
-      borderColor: "#c62828",
-      bgColor: "#fff8e1",
-      textColor: "#c62828",
-    },
-  ]
+  const activeWorkers = workers.filter((worker) => worker.status === "Active")
+  const inactiveWorkers = workers.filter((worker) => worker.status === "Inactive")
 
   // Download PDF report function
   const downloadPDF = async () => {
@@ -137,12 +110,12 @@ const WorkerTable = () => {
       // Show loading message
       setSnackbar({
         open: true,
-        message: "Generating task report...",
+        message: "Generating report...",
         severity: "info",
       })
 
       // Call the API to get the PDF report
-      const response = await getFetcherPramspdf(enpoints.worker.taskReport)
+      const response = await getFetcherPramspdf(enpoints.worker.report)
       console.log("PDF Response:", response)
 
       // Create a blob from the PDF data
@@ -154,7 +127,7 @@ const WorkerTable = () => {
       // Create a link element
       const link = document.createElement("a")
       link.href = url
-      link.setAttribute("download", "Worker Tasks Report.pdf")
+      link.setAttribute("download", "Worker Report.pdf")
 
       // Append to the document, click it, and remove it
       document.body.appendChild(link)
@@ -164,7 +137,7 @@ const WorkerTable = () => {
       // Show success message
       setSnackbar({
         open: true,
-        message: "Task report downloaded successfully",
+        message: "Report downloaded successfully",
         severity: "success",
       })
     } catch (error) {
@@ -173,7 +146,7 @@ const WorkerTable = () => {
       // Show error message
       setSnackbar({
         open: true,
-        message: "Failed to download task report. Please try again.",
+        message: "Failed to download report. Please try again.",
         severity: "error",
       })
     }
@@ -186,54 +159,135 @@ const WorkerTable = () => {
     setSnackbar({ ...snackbar, open: false })
   }
 
-
-
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ padding: "24px" }}>
-        {/* Statistics */}
+        {/* Worker Stats Cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {taskCards.map((card, index) => (
-            <Grid item xs={12} md={4} key={index}>
-              <Card
-                sx={{
-                  boxShadow: 2,
-                  borderRadius: 2,
-                  height: "100%",
-                  borderLeft: `5px solid ${card.borderColor}`,
-                  transition: "transform 0.3s, box-shadow 0.3s",
-                  "&:hover": { transform: "translateY(-5px)", boxShadow: 4 },
-                }}
-              >
-                <CardContent sx={{ display: "flex", alignItems: "center" }}>
-                  <Box
-                    sx={{
-                      backgroundColor: card.bgColor,
-                      borderRadius: "50%",
-                      p: 1.5,
-                      mr: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
+          <Grid item xs={12} md={4}>
+            <Card
+              sx={{
+                boxShadow: 2,
+                borderRadius: 2,
+                height: "100%",
+                borderLeft: `5px solid ${theme.palette.primary.main}`,
+                transition: "transform 0.3s, box-shadow 0.3s",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: 4,
+                },
+              }}
+            >
+              <CardContent sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    backgroundColor: theme.palette.secondary.main,
+                    borderRadius: "50%",
+                    p: 1.5,
+                    mr: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <PeopleIcon sx={{ fontSize: 30, color: theme.palette.primary.main }} />
+                </Box>
+                <Box>
+                  <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 500 }}>
+                    All Workers
+                  </Typography>
+                  <Typography
+                    variant="h4"
+                    component="div"
+                    sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
                   >
-                    {card.icon}
-                  </Box>
-                  <Box>
-                    <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
-                      {card.title}
-                    </Typography>
-                    <Typography variant="h4" sx={{ fontWeight: "bold", color: card.textColor }}>
-                      {card.count}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+                    {workers.length}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card
+              sx={{
+                boxShadow: 2,
+                borderRadius: 2,
+                height: "100%",
+                borderLeft: "5px solid #2e7d32",
+                transition: "transform 0.3s, box-shadow 0.3s",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: 4,
+                },
+              }}
+            >
+              <CardContent sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    backgroundColor: "#e8f5e9",
+                    borderRadius: "50%",
+                    p: 1.5,
+                    mr: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CheckCircleIcon sx={{ fontSize: 30, color: "#2e7d32" }} />
+                </Box>
+                <Box>
+                  <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 500 }}>
+                    Active Workers
+                  </Typography>
+                  <Typography variant="h4" component="div" sx={{ fontWeight: "bold", color: "#2e7d32" }}>
+                    {activeWorkers.length}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card
+              sx={{
+                boxShadow: 2,
+                borderRadius: 2,
+                height: "100%",
+                borderLeft: "5px solid #c62828",
+                transition: "transform 0.3s, box-shadow 0.3s",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: 4,
+                },
+              }}
+            >
+              <CardContent sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    backgroundColor: "#ffebee",
+                    borderRadius: "50%",
+                    p: 1.5,
+                    mr: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CancelIcon sx={{ fontSize: 30, color: "#c62828" }} />
+                </Box>
+                <Box>
+                  <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 500 }}>
+                    Inactive Workers
+                  </Typography>
+                  <Typography variant="h4" component="div" sx={{ fontWeight: "bold", color: "#c62828" }}>
+                    {inactiveWorkers.length}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
 
-        {/* Actions + Search */}
+        {/* Search and Actions */}
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3, flexWrap: "wrap", gap: 2 }}>
           <TextField
             placeholder="Search workers..."
@@ -272,7 +326,7 @@ const WorkerTable = () => {
           </Box>
         </Box>
 
-        {/* Table */}
+        {/* Worker Table */}
         <Paper sx={{ width: "100%", overflow: "hidden", borderRadius: 2, boxShadow: 3 }}>
           <TableContainer>
             <Table sx={{ minWidth: 700 }} aria-label="styled worker table">
@@ -370,7 +424,10 @@ const WorkerTable = () => {
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
-            sx={{ borderTop: "1px solid #e0e0e0", backgroundColor: "#fafafa" }}
+            sx={{
+              borderTop: "1px solid #e0e0e0",
+              backgroundColor: "#fafafa",
+            }}
           />
         </Paper>
       </Box>

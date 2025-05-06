@@ -46,6 +46,8 @@ const Sidebarmain = ({ open, onClose }) => {
         { text: 'Workers', path: '/worker/list' },
         { text: 'Create', path: '/worker/create' },
         { text: 'Manage', path: '/worker/manage' },
+        { text: 'Worker Profile', path: '/worker/workerprofile' },
+        { text: 'Worker Home', path: '/worker/workerhome' },
       ],
     },
     {
@@ -60,6 +62,17 @@ const Sidebarmain = ({ open, onClose }) => {
       ],
     },
     {
+      text: 'Task Dividing',
+      icon: <AccountIcon />,
+      hasSubmenu: true,
+      submenuKey: 'taskdi',
+      submenu: [
+        { text: 'All Task dividing', path: "/taskdi/list" },
+        { text: 'Create', path: "/taskdi/create" },
+        { text: 'Manage', path: "/taskdi/manage" },
+      ],
+    },
+    {
       text: 'Supervisor',
       icon: <AccountIcon />,
       hasSubmenu: true,
@@ -68,6 +81,9 @@ const Sidebarmain = ({ open, onClose }) => {
         { text: 'Supervisor', path: '/supervisor/list' },
         { text: 'Create', path: '/supervisor/create' },
         { text: 'Manage', path: '/supervisor/manage' },
+        {text: 'Worker list', path: '/supervisor/workerlist'},
+        { text: 'supervisor Home', path: '/supervisor/supervisorhome' },
+     
       ],
     },
     {

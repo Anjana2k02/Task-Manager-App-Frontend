@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { CircularProgress, Box } from "@mui/material";
 
-// Lazy load components
+
 const AuthController = lazy(() => import("../components/privateRoute"));
 const UserList = lazy(() => import("../pages/user/user"));
 const UserCreate = lazy(() => import("../pages/user/create"));
@@ -11,6 +11,8 @@ const UserManage = lazy(() => import("../pages/user/manage"));
 const WorkerList = lazy(() => import("../pages/worker/list"));
 const WorkerCreate = lazy(() => import("../pages/worker/create"));
 const WorkerManage = lazy(() => import("../pages/worker/manage"));
+const WorkerProfile = lazy(() => import("../pages/worker/workerprofile"));
+const WorkerHome = lazy(() => import("../pages/worker/workerhome"));
 
 const AdminDashboard = lazy(() => import("../pages/admin/admindashboard"));
 const TaskReassignList = lazy(() => import("../pages/admin/requestlist"));
@@ -21,49 +23,106 @@ const RequestDelete = lazy(() => import("../pages/admin/requestdelete"));
 const SupervisorList = lazy(() => import("../pages/supervisor/list"));
 const SupervisorCreate = lazy(() => import("../pages/supervisor/create"));
 const SupervisorManage = lazy(() => import("../pages/supervisor/manage"));
+const Supervisorworkerlist = lazy(() => import("../pages/supervisor/workerlist"));
+const SupervisorHome = lazy(() => import("../pages/supervisor/supervisorhome"));
 
 const TaskList = lazy(() => import("../pages/task/list"));
-const TaskCreate = lazy(() => import("../pages/task/create")); 
+const TaskCreate = lazy(() => import("../pages/task/create"));
 const TaskManage = lazy(() => import("../pages/task/manage"));
 
+const TaskdiList = lazy(() => import("../pages/taskdividing/list"));
+const TaskdiCreate = lazy(() => import("../pages/taskdividing/create"));
+const TaskdiManage = lazy(() => import("../pages/taskdividing/manage"));
+
+// Loading fallback component
 const Loading = () => (
-  <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+    }}
+  >
     <CircularProgress />
   </Box>
 );
 
+// Error boundary component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Error caught in ErrorBoundary:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Box sx={{ textAlign: "center", mt: 4 }}>
+          <h1>Something went wrong.</h1>
+          <p>Please try refreshing the page or come back later.</p>
+        </Box>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// Main routing component
 export default function Paths() {
   return (
-    <Suspense fallback={<Loading />}>
-      <Routes>
-        {/* Admin */}
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/requestlist" element={<TaskReassignList />} />
-        <Route path="/admin/requestcreate" element={<RequestForm />} />
-        <Route path="/admin/requestupdate" element={<RequestUpdate />} />
-        <Route path="/admin/requestdelete" element={<RequestDelete />} />
+    <ErrorBoundary>
+      <Suspense fallback={<Loading />}>
+        <Routes>
+          {/* Admin Routes */}
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/requestlist" element={<TaskReassignList />} />
+          <Route path="/admin/requestcreate" element={<RequestForm />} />
+          <Route path="/admin/requestupdate" element={<RequestUpdate />} />
+          <Route path="/admin/requestdelete" element={<RequestDelete />} />
 
-        {/* User */}
-        <Route path="/user/list" element={<UserList />} />
-        <Route path="/user/create" element={<UserCreate />} />
-        <Route path="/user/manage" element={<UserManage />} />
+          {/* User Routes */}
+          <Route path="/user/list" element={<UserList />} />
+          <Route path="/user/create" element={<UserCreate />} />
+          <Route path="/user/manage" element={<UserManage />} />
 
-        {/* Supervisor */}
-        <Route path="/supervisor/list" element={<SupervisorList />} />
-        <Route path="/supervisor/create" element={<SupervisorCreate />} />
-        <Route path="/supervisor/manage" element={<SupervisorManage />} />
+          {/* Supervisor Routes */}
+          <Route path="/supervisor/list" element={<SupervisorList />} />
+          <Route path="/supervisor/create" element={<SupervisorCreate />} />
+          <Route path="/supervisor/manage" element={<SupervisorManage />} />
+          <Route path="/supervisor/workerlist"element={<Supervisorworkerlist/>} />
+          <Route path="/supervisor/supervisorhome" element={<SupervisorHome />} />
 
-        {/* Worker */}
-        <Route path="/worker/list" element={<WorkerList />} />
-        <Route path="/worker/create" element={<WorkerCreate />} />
-        <Route path="/worker/manage" element={<WorkerManage />} />
+          {/* Worker Routes */}
+          <Route path="/worker/list" element={<WorkerList />} />
+          <Route path="/worker/create" element={<WorkerCreate />} />
+          <Route path="/worker/manage" element={<WorkerManage />} />
+          <Route path="/worker/workerprofile" element={<WorkerProfile />} />
+          <Route path="/worker/workerhome" element={<WorkerHome />} />
 
-        {/* Task */}
-        <Route path="/task/list" element={<TaskList />} /> 
-        <Route path="/task/create" element={<TaskCreate />} /> 
-        <Route path="/task/manage" element={<TaskManage />} /> 
+          {/* Task Routes */}
+          <Route path="/task/list" element={<TaskList />} />
+          <Route path="/task/create" element={<TaskCreate />} />
+          <Route path="/task/manage" element={<TaskManage />} />
 
-      </Routes>
-    </Suspense>
+          {/* Task Dividing Routes */}
+          <Route path="/taskdi/list" element={<TaskdiList />} />
+          <Route path="/taskdi/create" element={<TaskdiCreate />} />
+          <Route path="/taskdi/manage" element={<TaskdiManage />} />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   );
 }
+
+
+
