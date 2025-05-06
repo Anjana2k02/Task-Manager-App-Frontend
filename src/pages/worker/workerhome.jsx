@@ -258,7 +258,7 @@ const WorkerHome = () => {
               }}
             >
               <Typography variant="h4" sx={{ color: 'white', fontWeight: 700, textAlign: 'center', mb: 1 }}>
-                Task Management Dashboard
+                Worker Profile
               </Typography>
               <Typography variant="subtitle1" sx={{ color: 'white', textAlign: 'center', maxWidth: 600 }}>
                 Organize, prioritize, and complete your tasks efficiently
@@ -760,7 +760,7 @@ const WorkerHome = () => {
             }}
           >
             <Typography variant="body2" sx={{ color: theme.text.secondary }}>
-              © 2023 Task Manager Dashboard. All rights reserved.
+              © 2025 Task Manager Dashboard. All rights reserved.
             </Typography>
           </Box>
         </Container>
