@@ -383,7 +383,7 @@ const WorkerTable = () => {
                         {worker.country}
                       </TableCell>
                       <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
-                        {worker.expression}
+                        {worker.expressionStatus}
                       </TableCell>
                       <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
                         <Box

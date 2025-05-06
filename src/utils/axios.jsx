@@ -72,6 +72,17 @@ export const fetcher = async (args) => {
     return res.data;
   };
 
+  // give user to update expression status
+export const patchExpressionStatusFetcher = async (id, status, config) => {
+  const url = `/worker/${id}/expression-status`;
+  const res = await axiosInstance.patch(url, null, {
+    params: { status },
+    ...config,
+  });
+  return res.data;
+};
+
+
   
   export const enpoints = {
 

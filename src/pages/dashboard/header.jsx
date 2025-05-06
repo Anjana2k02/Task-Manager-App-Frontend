@@ -1,56 +1,86 @@
-import { AppBar, Toolbar, Typography, Box, IconButton, InputBase, Avatar, Divider, Paper } from "@mui/material"
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { patchExpressionStatusFetcher } from "../../utils/axios"; // Adjust path if needed
+
+import {
+  AppBar, Toolbar, Typography, Box, IconButton, InputBase, Avatar, Divider, Paper
+} from "@mui/material";
 import {
   Search as SearchIcon,
   GridView as GridViewIcon,
   Logout as LogoutIcon,
   AccountCircle as AccountIcon,
-} from "@mui/icons-material"
-import { alpha } from "@mui/material/styles"
-import { LogOut } from "lucide-react"
-import LogoutService from "../auth/logout"
+} from "@mui/icons-material";
+import { alpha } from "@mui/material/styles";
+import LogoutService from "../auth/logout";
 
 const Header = () => {
-  // This would come from your authentication context in a real app
+  const [status, setStatus] = useState("");
+
+
+  useEffect(() => {
+    const source = new EventSource("http://localhost:8000/stream_status");
+
+    source.onmessage = (event) => {
+      const newStatus = event.data;
+      console.log("🔥 New Emotion Status:", newStatus);
+      setStatus(newStatus);
+    };
+
+    source.onerror = (err) => {
+      console.error("❌ SSE connection error:", err);
+      source.close();
+    };
+
+    return () => {
+      source.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    const id = "67dbdf661d92b513cab38bfb";
+    
+    if (status && status.trim() !== "") {
+      const updateStatus = async () => {
+        try {
+          await patchExpressionStatusFetcher(id, status);
+          console.log("✅ Expression status sent to backend:", { id, status });
+        } catch (error) {
+          console.error("❌ Failed to update expression status:", error);
+        }
+      };
+  
+      updateStatus();
+    }
+  }, [status]);
+
   const userInfo = {
     name: "Guest User",
     role: "Worker",
-  }
+  };
 
   return (
     <AppBar
       position="static"
       elevation={0}
       sx={{
-        backgroundColor: "#3498db", // Attractive light blue color
+        backgroundColor: "#3498db",
         color: "#ffffff",
         borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
       }}
     >
       <Toolbar sx={{ height: "72px", px: 2 }}>
-        {/* Left Side - Grid Icon and Brand */}
+        {/* Left Side */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <IconButton
-            size="medium"
-            edge="start"
-            sx={{
-              mr: 2,
-              color: "#ffffff",
-            }}
-          >
+          <IconButton size="medium" edge="start" sx={{ mr: 2, color: "#ffffff" }}>
             <GridViewIcon />
           </IconButton>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: "700",
-              color: "#ffffff",
-              letterSpacing: "0.5px",
-            }}
-          >
+          <Typography variant="h6" sx={{ fontWeight: "700", color: "#ffffff", letterSpacing: "0.5px" }}>
             HELIX
           </Typography>
         </Box>
-        {/* Center - Search Bar */}
+
+        {/* Center - Search */}
         <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
           <Paper
             elevation={0}
@@ -84,7 +114,8 @@ const Header = () => {
             />
           </Paper>
         </Box>
-        {/* Right Side - User Info and Logout only */}
+
+        {/* Right Side - User Info */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", ml: 1 }}>
             <Box sx={{ mr: 2, textAlign: "right" }}>
@@ -111,7 +142,7 @@ const Header = () => {
         </Box>
       </Toolbar>
     </AppBar>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
