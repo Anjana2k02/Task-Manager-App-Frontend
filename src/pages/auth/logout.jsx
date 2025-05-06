@@ -1,11 +1,20 @@
-// const Logout = () => {
-//     const navigate = useNavigate();
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
-//     const handleLogout = () => {
-//         localStorage.removeItem('userId');
-//         localStorage.removeItem('userType');
-//         navigate('/');
-//     };
+const Logout = () => {
+  const navigate = useNavigate();
 
-//     return <button onClick={handleLogout}>Logout</button>;
-// };
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userType");
+
+    // Optionally force app re-render if needed:
+    window.dispatchEvent(new Event("storage")); // triggers useEffect in App.js
+
+    navigate("/"); // go back to login
+  };
+
+  return <button onClick={handleLogout}>Logout</button>;
+};
+
+export default Logout;

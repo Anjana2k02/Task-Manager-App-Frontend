@@ -1,6 +1,7 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Box, IconButton, InputBase, Avatar } from "@mui/material";
 import { Search } from "@mui/icons-material";
+import Logout from "../auth/logout";
 
 const Header = () => {
   return (
@@ -31,6 +32,10 @@ const Header = () => {
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Typography variant="body1">Guest User</Typography>
           <Avatar alt="User" src="/static/images/avatar/1.jpg" />
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Logout />
+          
         </Box>
       </Toolbar>
     </AppBar>
