@@ -3,7 +3,7 @@ import { getFetcher, enpoints } from '../../utils/axios'; // Assuming axios func
 
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-// import { getFastAPIParamFetcher, enpoints } from '../../utils/axios';
+
 
 const UserTable = () => {
   const [users, setUsers] = useState([]);
@@ -22,9 +22,9 @@ const UserTable = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const data = await getFetcher(enpoints.user.viewAll); // Use API
+        const data = await getFetcher(enpoints.task.viewAll); // Use API
         setUsers(data); // Update state with fetched users
-        console.log('gtr', data); // Log actual data, not setUsers function
+        console.log('mytasklist', data); // Log actual data, not setUsers function
         console.log('supra');
         
       } catch (error) {
@@ -35,22 +35,7 @@ const UserTable = () => {
     fetchUsers();
   }, []);
 
-    // Fetching data from the API using the getFetcher function
-    useEffect(() => {
-      const fetchUsers = async () => {
-        try {
-          const data = await getFastAPIParamFetcher(fastApi.facialStatus); // Use API
-          setStatus(data); // Update state with fetched users
-          console.log('suppppppppppp', data); // Log actual data, not setUsers function
-          
-          
-        } catch (error) {
-          console.error("Error fetching users:", error);
-        }
-      };
-    
-      fetchUsers();
-    }, []);
+
 
   // Handle pagination changes
   const handleChangePage = (event, newPage) => {

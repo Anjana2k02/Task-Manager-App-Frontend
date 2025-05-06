@@ -117,6 +117,18 @@ const Sidebarmain = () => {
         { text: "Manage Task", path: "/task/manage" },
       ],
     },
+
+    {
+      text: "My Tasks",
+      icon: <TaskIcon />,
+      hasSubmenu: true,
+      submenuKey: "my_tasks",
+      color: colors.tasks,
+      submenu: [
+        { text: "All Tasks", path: "/task/list" },
+        { text: "Task Overview", path: "/task/create" },
+      ],
+    },
     {
       text: "Task Dividing",
       icon: <TaskDividingIcon />,
