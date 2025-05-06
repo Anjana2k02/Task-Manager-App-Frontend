@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Box } from "@mui/material";
 import Sidebarmain from "./pages/dashboard/sidebar";
@@ -25,11 +27,24 @@ function App() {
         <UserLogin onLogin={() => setIsAuthenticated(true)} />
       ) : (
         <PrivateRoute>
-          <Box sx={{ display: "flex", height: "100vh", backgroundColor: "#f4f4f4" }}>
-            <Sidebarmain />
-            <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+          {/* Full page layout */}
+          <Box sx={{ height: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#f8f9fa" }}>
+            {/* Header - top bar */}
+            <Box sx={{ flexShrink: 0 }}>
               <Header />
-              <Paths />
+            </Box>
+
+            {/* Main content below header */}
+            <Box sx={{ display: "flex", flexGrow: 1, minHeight: 0 }}>
+              {/* Sidebar - fixed 20% width */}
+              <Box sx={{ width: "20%", flexShrink: 0 }}>
+                <Sidebarmain />
+              </Box>
+
+              {/* Main content area */}
+              <Box sx={{ flexGrow: 1, overflowY: "auto", p: 3 }}>
+                <Paths />
+              </Box>
             </Box>
           </Box>
         </PrivateRoute>
@@ -39,41 +54,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
-
-
-
-// import React from "react";
-// import { Routes, Route } from "react-router-dom";
-// import Dashboard from "./pages/dashboard/sidebar";
-// import Login from "./pages/auth/login";
-// import PrivateRoute from "./components/privateRoute"
-
-// const Paths = () => {
-//   return (
-//     <Routes>
-//       {/* Public Route */}
-//       <Route path="/login" element={<Login />} />
-
-//       {/* Protected Route */}
-//       <Route
-//         path="/dashboard"
-//         element={
-//           <PrivateRoute>
-//             {/* <DashboardLayout> */}
-//               <Dashboard />
-//             {/* </DashboardLayout> */}
-//           </PrivateRoute>
-//         }
-//       />
-
-//       {/* Fallback route */}
-//       <Route path="*" element={<Login />} />
-//     </Routes>
-//   );
-// };
-
-// export default Paths;
