@@ -1,3 +1,310 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Box, Button, Typography, IconButton, TextField, Grid, Paper, Popover
+} from '@mui/material';
+import {
+  Menu as MenuIcon, Search as SearchIcon, Settings as SettingsIcon,
+  ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon,
+  Add as AddIcon, Pause as PauseIcon, Close as CloseIcon
+} from '@mui/icons-material';
+
+const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+const weekDates = [3, 4, 5, 6, 7, 8, 9];
+const timeSlots = Array.from({ length: 9 }, (_, i) => i + 8); // 8 AM to 4 PM
+
+const events = [
+  { id: 1, title: 'Team Meeting', startTime: '09:00', endTime: '10:00', color: '#3b82f6', day: 1, description: 'Weekly team sync-up', location: 'Conference Room A', attendees: ['John Doe', 'Jane Smith', 'Bob Johnson'], organizer: 'Alice Brown' },
+  { id: 2, title: 'Lunch with Sarah', startTime: '12:30', endTime: '13:30', color: '#22c55e', day: 1, description: 'Discuss project timeline', location: 'Cafe Nero', attendees: ['Sarah Lee'], organizer: 'You' },
+  { id: 3, title: 'Project Review', startTime: '14:00', endTime: '15:30', color: '#8b5cf6', day: 3, description: 'Q2 project progress review', location: 'Meeting Room 3', attendees: ['Team Alpha', 'Stakeholders'], organizer: 'Project Manager' },
+  { id: 4, title: 'Client Call', startTime: '10:00', endTime: '11:00', color: '#eab308', day: 2, description: 'Quarterly review with major client', location: 'Zoom Meeting', attendees: ['Client Team', 'Sales Team'], organizer: 'Account Manager' },
+  { id: 5, title: 'Team Brainstorm', startTime: '13:00', endTime: '14:30', color: '#6366f1', day: 4, description: 'Ideation session for new product features', location: 'Creative Space', attendees: ['Product Team', 'Design Team'], organizer: 'Product Owner' },
+  { id: 6, title: 'Product Demo', startTime: '11:00', endTime: '12:00', color: '#ec4899', day: 5, description: 'Showcase new features to stakeholders', location: 'Demo Room', attendees: ['Stakeholders', 'Dev Team'], organizer: 'Tech Lead' },
+  { id: 7, title: 'Marketing Meeting', startTime: '13:00', endTime: '14:00', color: '#14b8a6', day: 6, description: 'Discuss Q3 marketing strategy', location: 'Marketing Office', attendees: ['Marketing Team'], organizer: 'Marketing Director' },
+  { id: 8, title: 'Code Review', startTime: '15:00', endTime: '16:00', color: '#06b6d4', day: 7, description: 'Review pull requests for new feature', location: 'Dev Area', attendees: ['Dev Team'], organizer: 'Senior Developer' },
+  { id: 9, title: 'Morning Standup', startTime: '08:30', endTime: '09:30', color: '#60a5fa', day: 2, description: 'Daily team standup', location: 'Slack Huddle', attendees: ['Development Team'], organizer: 'Scrum Master' },
+  { id: 10, title: 'Design Review', startTime: '14:30', endTime: '15:45', color: '#a78bfa', day: 5, description: 'Review new UI designs', location: 'Design Lab', attendees: ['UX Team', 'Product Manager'], organizer: 'Lead Designer' },
+  { id: 11, title: 'Investor Meeting', startTime: '10:30', endTime: '12:00', color: '#f87171', day: 7, description: 'Quarterly investor update', location: 'Board Room', attendees: ['Executive Team', 'Investors'], organizer: 'CEO' },
+  { id: 12, title: 'Team Training', startTime: '09:30', endTime: '11:30', color: '#4ade80', day: 4, description: 'New tool onboarding session', location: 'Training Room', attendees: ['All Departments'], organizer: 'HR' },
+  { id: 13, title: 'Budget Review', startTime: '13:30', endTime: '15:00', color: '#fde68a', day: 3, description: 'Quarterly budget analysis', location: 'Finance Office', attendees: ['Finance Team', 'Department Heads'], organizer: 'CFO' },
+  { id: 14, title: 'Client Presentation', startTime: '11:00', endTime: '12:30', color: '#fb923c', day: 6, description: 'Present new project proposal', location: 'Client Office', attendees: ['Sales Team', 'Client Representatives'], organizer: 'Account Executive' },
+  { id: 15, title: 'Product Planning', startTime: '14:00', endTime: '15:30', color: '#f472b6', day: 1, description: 'Roadmap discussion for Q3', location: 'Strategy Room', attendees: ['Product Team', 'Engineering Leads'], organizer: 'Product Manager' },
+];
+
+function calculateEventStyle(startTime, endTime) {
+  const [startHour, startMinute] = startTime.split(':').map(Number);
+  const [endHour, endMinute] = endTime.split(':').map(Number);
+  const start = startHour + startMinute / 60;
+  const end = endHour + endMinute / 60;
+  const top = (start - 8) * 80; // 80px per hour
+  const height = (end - start) * 80;
+  return { top, height };
+}
+
+export default function Calendar() {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [showAIPopup, setShowAIPopup] = useState(false);
+  const [typedText, setTypedText] = useState('');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentView, setCurrentView] = useState('week');
+  const [currentMonth, setCurrentMonth] = useState('March 2025');
+  const [currentDate, setCurrentDate] = useState('March 5');
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  useEffect(() => {
+    setIsLoaded(true);
+    const popupTimer = setTimeout(() => setShowAIPopup(true), 3000);
+    return () => clearTimeout(popupTimer);
+  }, []);
+
+  useEffect(() => {
+    if (showAIPopup) {
+      const text = "LLooks like you don't have that many meetings today. Shall I play some Hans Zimmer essentials to help you get into your Flow State?";
+      let i = 0;
+      setTypedText('');
+      const typingInterval = setInterval(() => {
+        setTypedText((prev) => prev + text.charAt(i));
+        i++;
+        if (i >= text.length) clearInterval(typingInterval);
+      }, 50);
+      return () => clearInterval(typingInterval);
+    }
+  }, [showAIPopup]);
+
+  const handleEventClick = (event) => setSelectedEvent(event);
+  const togglePlay = () => setIsPlaying(!isPlaying);
+
+  return (
+    <Box sx={{ position: 'relative', minHeight: '100vh', width: '100%', overflow: 'hidden', bgcolor: '#18181b' }}>
+      {/* Navigation */}
+      <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 4, py: 2, opacity: isLoaded ? 1 : 0, transition: 'opacity 0.5s' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <IconButton color="inherit"><MenuIcon /></IconButton>
+          <Typography variant="h6" color="white" sx={{ textShadow: '0 0 4px rgba(0,0,0,0.7)' }}>Calendar</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ position: 'relative' }}>
+            <SearchIcon sx={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'white', opacity: 0.7, fontSize: 20 }} />
+            <TextField
+              variant="outlined"
+              size="small"
+              placeholder="Search"
+              sx={{
+                borderRadius: '9999px',
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                input: { color: 'white', paddingLeft: '32px' },
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.2)' },
+                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.3)' },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.4)' },
+              }}
+            />
+          </Box>
+          <IconButton color="inherit"><SettingsIcon /></IconButton>
+          <Box sx={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', boxShadow: '0 2px 6px rgba(0,0,0,0.3)' }}>U</Box>
+        </Box>
+      </Box>
+
+      {/* Main Content */}
+      <Box sx={{ display: 'flex', height: '100vh', pt: 8, px: 4 }}>
+        {/* Sidebar */}
+        <Box sx={{ width: 256, height: '100%', backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', p: 2, borderRadius: '0 24px 0 0', boxShadow: '0 0 10px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', opacity: isLoaded ? 1 : 0, transition: 'opacity 0.5s' }}>
+          <Box>
+            <Button variant="contained" startIcon={<AddIcon />} fullWidth sx={{ mb: 2 }}>Create</Button>
+            {/* Mini Calendar */}
+            <Box sx={{ mb: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="subtitle1" color="white">{currentMonth}</Typography>
+                <Box>
+                  <IconButton size="small" sx={{ color: 'white' }}><ChevronLeftIcon fontSize="small" /></IconButton>
+                  <IconButton size="small" sx={{ color: 'white' }}><ChevronRightIcon fontSize="small" /></IconButton>
+                </Box>
+              </Box>
+              <Grid container spacing={0.5} sx={{ textAlign: 'center' }}>
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                  <Grid item xs={1.71} key={i}>
+                    <Typography variant="caption" color="rgba(255,255,255,0.7)">{day}</Typography>
+                  </Grid>
+                ))}
+                {Array.from({ length: 31 + 5 }).map((_, i) => {
+                  const day = i < 5 ? null : i - 5 + 1;
+                  const isSelected = day === 5;
+                  return (
+                    <Grid item xs={1.71} key={i}>
+                      <Box
+                        sx={{
+                          width: 28, height: 28, borderRadius: '50%',
+                          backgroundColor: isSelected ? '#3b82f6' : 'transparent',
+                          color: isSelected ? 'white' : 'rgba(255,255,255,0.7)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          cursor: day ? 'pointer' : 'default',
+                          '&:hover': { backgroundColor: isSelected ? '#3b82f6' : 'rgba(255,255,255,0.2)' },
+                        }}
+                      >{day || ''}</Box>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Box>
+            {/* My Calendars */}
+            <Box>
+              <Typography variant="subtitle1" color="white" sx={{ mb: 1 }}>My calendars</Typography>
+              {['My Calendar', 'Work', 'Personal', 'Family'].map((name, i) => {
+                const colors = ['#3b82f6', '#22c55e', '#8b5cf6', '#fb923c'];
+                return (
+                  <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Box sx={{ width: 12, height: 12, borderRadius: 1, backgroundColor: colors[i] }} />
+                    <Typography variant="body2" color="white">{name}</Typography>
+                  </Box>
+                );
+              })}
+            </Box>
+          </Box>
+          <Button variant="contained" sx={{ width: 56, height: 56, borderRadius: '50%', alignSelf: 'start' }}><AddIcon /></Button>
+        </Box>
+
+        {/* Calendar View */}
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', opacity: isLoaded ? 1 : 0, transition: 'opacity 0.5s' }}>
+          {/* Calendar Controls */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2, borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Button variant="contained" size="small" sx={{ backgroundColor: '#3b82f6' }}>Today</Button>
+              <Box sx={{ display: 'flex' }}>
+                <IconButton size="small" sx={{ color: 'white' }}><ChevronLeftIcon fontSize="small" /></IconButton>
+                <IconButton size="small" sx={{ color: 'white' }}><ChevronRightIcon fontSize="small" /></IconButton>
+              </Box>
+              <Typography variant="h6" color="white">{currentDate}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1, borderRadius: 1, p: 0.5 }}>
+              {['day', 'week', 'month'].map((view) => (
+                <Button
+                  key={view}
+                  variant={currentView === view ? 'contained' : 'text'}
+                  size="small"
+                  onClick={() => setCurrentView(view)}
+                  sx={{ color: 'white', backgroundColor: currentView === view ? 'rgba(255,255,255,0.2)' : 'transparent' }}
+                >
+                  {view.charAt(0).toUpperCase() + view.slice(1)}
+                </Button>
+              ))}
+            </Box>
+          </Box>
+          {/* Week View */}
+          <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+            <Paper sx={{ backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', borderRadius: 3, border: '1px solid rgba(255,255,255,0.2)', height: '100%', boxShadow: '0 0 10px rgba(0,0,0,0.3)' }}>
+              {/* Week Header */}
+              <Grid container columns={8} sx={{ borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+                <Grid item xs={1} sx={{ borderRight: '1px solid rgba(255,255,255,0.2)', p: 1 }}></Grid>
+                {weekDays.map((day, i) => (
+                  <Grid key={i} item xs={1} sx={{ borderLeft: '1px solid rgba(255,255,255,0.2)', p: 1, textAlign: 'center' }}>
+                    <Typography variant="caption" color="rgba(255,255,255,0.7)">{day}</Typography>
+                    <Box
+                      sx={{
+                        mt: 0.5, width: 32, height: 32, borderRadius: '50%',
+                        backgroundColor: weekDates[i] === 5 ? '#3b82f6' : 'transparent',
+                        color: weekDates[i] === 5 ? 'white' : 'rgba(255,255,255,0.7)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto'
+                      }}
+                    >{weekDates[i]}</Box>
+                  </Grid>
+                ))}
+              </Grid>
+              {/* Time Grid */}
+              <Grid container columns={8} sx={{ height: 'calc(100% - 48px)', position: 'relative' }}>
+                {/* Time Labels */}
+                <Grid item xs={1} sx={{ borderRight: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', fontSize: 10, textAlign: 'right', pr: 1 }}>
+                  {timeSlots.map((time, i) => (
+                    <Box key={i} sx={{ height: 80, borderBottom: '1px solid rgba(255,255,255,0.1)', lineHeight: '80px' }}>
+                      {time > 12 ? `${time - 12} PM` : `${time} AM`}
+                    </Box>
+                  ))}
+                </Grid>
+                {/* Days Columns */}
+                {Array.from({ length: 7 }).map((_, dayIndex) => (
+                  <Grid key={dayIndex} item xs={1} sx={{ borderLeft: '1px solid rgba(255,255,255,0.1)', position: 'relative' }}>
+                    {timeSlots.map((_, timeIndex) => (
+                      <Box key={timeIndex} sx={{ height: 80, borderBottom: '1px solid rgba(255,255,255,0.1)' }}></Box>
+                    ))}
+                    {/* Events */}
+                    {events
+                      .filter((event) => event.day === dayIndex + 1)
+                      .map((event) => {
+                        const { top, height } = calculateEventStyle(event.startTime, event.endTime);
+                        return (
+                          <Box
+                            key={event.id}
+                            onClick={() => handleEventClick(event)}
+                            sx={{
+                              position: 'absolute', top, left: 4, right: 4, height,
+                              backgroundColor: event.color, borderRadius: 1, p: 1, color: 'white',
+                              fontSize: 10, fontWeight: 'medium', boxShadow: 3, cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 },
+                            }}
+                          >
+                            <Typography sx={{ fontWeight: 'bold' }}>{event.title}</Typography>
+                            <Typography sx={{ opacity: 0.8, fontSize: 8, mt: 0.5 }}>{`${event.startTime} - ${event.endTime}`}</Typography>
+                          </Box>
+                        );
+                      })}
+                  </Grid>
+                ))}
+              </Grid>
+            </Paper>
+          </Box>
+        </Box>
+
+        {/* AI Popup */}
+        {showAIPopup && (
+          <Popover
+            open={showAIPopup}
+            anchorReference="anchorPosition"
+            anchorPosition={{ top: window.innerHeight - 150, left: window.innerWidth - 500 }}
+            onClose={() => setShowAIPopup(false)}
+            PaperProps={{ sx: { p: 3, background: 'linear-gradient(135deg, #60a5fa30, #3b82f630)', backdropFilter: 'blur(10px)', borderRadius: 3, border: '1px solid #3b82f6' } }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'white' }}>
+              <Typography variant="body1" sx={{ flex: 1, fontWeight: 'light' }}>{typedText}</Typography>
+              <IconButton onClick={() => setShowAIPopup(false)} sx={{ color: 'white' }}><CloseIcon /></IconButton>
+            </Box>
+            <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+              <Button variant="outlined" color="primary" fullWidth onClick={togglePlay}>Yes</Button>
+              <Button variant="outlined" color="primary" fullWidth onClick={() => setShowAIPopup(false)}>No</Button>
+            </Box>
+            {isPlaying && (
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Button variant="contained" color="primary" startIcon={<PauseIcon />} onClick={togglePlay}>Pause Hans Zimmer</Button>
+              </Box>
+            )}
+          </Popover>
+        )}
+
+        {/* Event Details Dialog */}
+        {selectedEvent && (
+          <Popover
+            open={Boolean(selectedEvent)}
+            anchorReference="anchorPosition"
+            anchorPosition={{ top: window.innerHeight / 2 - 150, left: window.innerWidth / 2 - 200 }}
+            onClose={() => setSelectedEvent(null)}
+            PaperProps={{ sx: { p: 3, backgroundColor: selectedEvent.color, borderRadius: 3, boxShadow: 3, maxWidth: 400 } }}
+          >
+            <Typography variant="h6" sx={{ mb: 2, color: 'white' }}>{selectedEvent.title}</Typography>
+            <Typography sx={{ color: 'white', mb: 1 }}>{`${selectedEvent.startTime} - ${selectedEvent.endTime}`}</Typography>
+            <Typography sx={{ color: 'white', mb: 1 }}>Location: {selectedEvent.location}</Typography>
+            <Typography sx={{ color: 'white', mb: 1 }}>Date: {weekDays[selectedEvent.day - 1]}, {weekDates[selectedEvent.day - 1]} {currentMonth}</Typography>
+            <Typography sx={{ color: 'white', mb: 1 }}>Attendees: {selectedEvent.attendees.join(', ')}</Typography>
+            <Typography sx={{ color: 'white', mb: 1 }}>Organizer: {selectedEvent.organizer}</Typography>
+            <Typography sx={{ color: 'white' }}>Description: {selectedEvent.description}</Typography>
+            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+              <Button variant="contained" onClick={() => setSelectedEvent(null)}>Close</Button>
+            </Box>
+          </Popover>
+        )}
+      </Box>
+    </Box>
+  );
+}
+
+
+
 // "use client"
 
 // import { useState } from "react"
@@ -522,3 +829,7 @@
 //     </ThemeProvider>
 //   )
 // }
+
+
+
+

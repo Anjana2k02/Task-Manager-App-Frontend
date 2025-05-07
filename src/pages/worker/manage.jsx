@@ -9,6 +9,20 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { getFetcher, enpoints, getFetcherPramspdf } from '../../utils/axios';
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#0077b6',
+    },
+    background: {
+      default: '#f0f4f8',
+    },
+  },
+  typography: {
+    fontFamily: `'Poppins', sans-serif`,
+  },
+});
+
 const WorkerTable = () => {
   const [workers, setWorkers] = useState([]);
   const [page, setPage] = useState(0);
@@ -29,9 +43,7 @@ const WorkerTable = () => {
     fetchWorkers();
   }, []);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  const handleChangePage = (event, newPage) => setPage(newPage);
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -44,7 +56,7 @@ const WorkerTable = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'Worker-List-Report.pdf');
+      link.setAttribute('download', 'Worker_Report.pdf');
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -53,96 +65,107 @@ const WorkerTable = () => {
     }
   };
 
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: '#1976d2',
-      },
-    },
-    typography: {
-      fontFamily: 'Roboto, sans-serif',
-    },
-  });
-
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ p: 3 }}>
-        <Paper elevation={4} sx={{ p: 4 }}>
-          <Stack spacing={1} mb={3}>
-            <Typography variant="h4" fontWeight="bold" color="primary">
-              Worker Management
-            </Typography>
-            <Typography variant="subtitle1" color="text.secondary">
-              Manage and view workers' data efficiently.
-            </Typography>
-          </Stack>
+      <Box sx={{ p: 4, backgroundColor: '#e3f2fd', minHeight: '100vh' }}>
+        <Paper
+          elevation={6}
+          sx={{
+            p: 4,
+            borderRadius: 4,
+            background: 'linear-gradient(145deg, #ffffff, #e6e6e6)',
+            boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+          }}
+        >
+          <Typography variant="h4" sx={{ color: '#0077b6', mb: 1, fontWeight: 600 }}>
+            🛠️ Worker Management
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 4 }}>
+            View and manage worker records efficiently.
+          </Typography>
 
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" mb={3}>
+            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" sx={{ mb: 4 }}>
               <DatePicker
                 label="Start Date"
                 value={startDate}
                 onChange={(newDate) => setStartDate(newDate)}
-                slotProps={{ textField: { size: 'small' } }}
+                slotProps={{ textField: { size: 'small', variant: 'outlined' } }}
               />
               <DatePicker
                 label="End Date"
                 value={endDate}
                 onChange={(newDate) => setEndDate(newDate)}
-                slotProps={{ textField: { size: 'small' } }}
+                slotProps={{ textField: { size: 'small', variant: 'outlined' } }}
               />
               <TextField
-                label="Search"
+                label="Search by name or email"
                 variant="outlined"
                 size="small"
-                sx={{ flexGrow: 1, minWidth: 200 }}
+                sx={{ flexGrow: 1 }}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Button variant="contained" size="medium" onClick={downloadPDF}>
-                Download PDF
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={downloadPDF}
+                sx={{ textTransform: 'none' }}
+              >
+                ⬇️ Download PDF
               </Button>
             </Stack>
           </LocalizationProvider>
 
-          <TableContainer component={Paper} elevation={2}>
-            <Table sx={{ border: '1px solid #ccc' }}>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: '#e3f2fd' }}>
-                  {['ID', 'First Name', 'Last Name', 'Email', 'Password', 'Country', 'Status', 'Expression'].map(header => (
-                    <TableCell
-                      key={header}
-                      sx={{ fontWeight: 'bold', borderRight: '1px solid #ddd' }}
-                      align="center"
-                    >
-                      {header}
-                    </TableCell>
+          <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+            <Table>
+              <TableHead sx={{ backgroundColor: '#90e0ef' }}>
+                <TableRow>
+                  {['ID', 'First Name', 'Last Name', 'Email', 'Country', 'Status', 'Expression'].map((header) => (
+                    <TableCell key={header}><strong>{header}</strong></TableCell>
                   ))}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {workers
-                  .filter((worker) =>
-                    `${worker.firstName} ${worker.lastName} ${worker.email}`.toLowerCase().includes(searchQuery.toLowerCase())
+                  .filter((w) =>
+                    `${w.firstName} ${w.lastName} ${w.email}`.toLowerCase().includes(searchQuery.toLowerCase())
                   )
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((worker, index) => (
+                  .map((w) => (
                     <TableRow
-                      key={worker.id}
+                      key={w.id}
                       hover
                       sx={{
-                        backgroundColor: index % 2 === 0 ? '#fafafa' : 'white',
-                        '&:last-child td, &:last-child th': { borderBottom: 0 },
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          backgroundColor: '#caf0f8',
+                          cursor: 'pointer',
+                        },
                       }}
                     >
-                      <TableCell align="center" sx={{ borderRight: '1px solid #eee' }}>{worker.id}</TableCell>
-                      <TableCell align="center" sx={{ borderRight: '1px solid #eee' }}>{worker.firstName}</TableCell>
-                      <TableCell align="center" sx={{ borderRight: '1px solid #eee' }}>{worker.lastName}</TableCell>
-                      <TableCell align="center" sx={{ borderRight: '1px solid #eee' }}>{worker.email}</TableCell>
-                      <TableCell align="center" sx={{ borderRight: '1px solid #eee' }}>{worker.password}</TableCell>
-                      <TableCell align="center" sx={{ borderRight: '1px solid #eee' }}>{worker.country}</TableCell>
-                      <TableCell align="center" sx={{ borderRight: '1px solid #eee' }}>{worker.status}</TableCell>
-                      <TableCell align="center">{worker.expression}</TableCell>
+                      <TableCell>{w.id}</TableCell>
+                      <TableCell>{w.firstName}</TableCell>
+                      <TableCell>{w.lastName}</TableCell>
+                      <TableCell>{w.email}</TableCell>
+                      <TableCell>{w.country}</TableCell>
+                      <TableCell>
+                        <Box
+                          sx={{
+                            px: 1.5,
+                            py: 0.5,
+                            backgroundColor: w.status === 'Active' ? '#90be6d' : '#f94144',
+                            color: '#fff',
+                            borderRadius: '12px',
+                            display: 'inline-block',
+                            fontSize: '0.85rem',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {w.status}
+                        </Box>
+                      </TableCell>
+                      <TableCell>{w.expression}</TableCell>
                     </TableRow>
                   ))}
               </TableBody>
