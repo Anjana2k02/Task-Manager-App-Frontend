@@ -1,10 +1,7 @@
 "use client"
+
 import { useEffect, useState } from "react"
-import {
-  getFetcher,
-  enpoints,
-  getFetcherPramspdf,
-} from "../../utils/axios"
+import { getFetcher, enpoints, getFetcherPramspdf } from "../../utils/axios"
 
 import {
   Box,
@@ -41,7 +38,6 @@ import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   Download as DownloadIcon,
-  FilterList as FilterListIcon,
 } from "@mui/icons-material"
 
 const WorkerTable = () => {
@@ -51,11 +47,25 @@ const WorkerTable = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState("")
+  const [expressionFilter, setExpressionFilter] = useState("")
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   })
+
+  const expressionEmojiMap = {
+    Happy: "😊",
+    Neutral: "😐",
+    Curious: "🤔",
+    stressfull: "😩",
+    surprised: "😲",
+    Excited: "😄",
+    Confident: "😎",
+    Thoughtful: "💭",
+    Serious: "😐",
+    Joyful: "😁",
+  }
 
   const theme = createTheme({
     palette: {
@@ -70,26 +80,30 @@ const WorkerTable = () => {
     },
   })
 
-  useEffect(() => {
-    const fetchWorkers = async () => {
-      setLoading(true)
-      try {
-        const data = await getFetcher(enpoints.worker.viewAll)
-        const enriched = data.map((w) => ({
-          ...w,
-          status: w.status || "Not Started",
-        }))
-        setWorkers(enriched)
-      } catch (error) {
-        console.error("Error fetching workers:", error)
-      } finally {
-        setLoading(false)
-      }
+  const fetchWorkers = async () => {
+    setLoading(true)
+    try {
+      const data = await getFetcher(enpoints.worker.viewAll)
+      const enriched = data.map((w) => ({
+        ...w,
+        status: w.status || "Not Started",
+      }))
+      setWorkers(enriched)
+      console.log("Workers data:", enriched)
+    } catch (error) {
+      console.error("Error fetching workers:", error)
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     fetchWorkers()
   }, [])
 
-  const handleChangePage = (event, newPage) => setPage(newPage)
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage)
+  }
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(Number.parseInt(event.target.value, 10))
@@ -113,14 +127,24 @@ const WorkerTable = () => {
     setPage(0)
   }
 
+  const handleExpressionFilterChange = (event) => {
+    setExpressionFilter(event.target.value)
+    setPage(0)
+  }
+
   const filteredWorkers = workers.filter((worker) => {
     const matchesSearch =
       worker.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       worker.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       worker.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       worker.country?.toLowerCase().includes(searchTerm.toLowerCase())
+
     const matchesStatus = statusFilter ? worker.status === statusFilter : true
-    return matchesSearch && matchesStatus
+    const matchesExpression = expressionFilter
+      ? worker.expressionStatus === expressionFilter
+      : true
+
+    return matchesSearch && matchesStatus && matchesExpression
   })
 
   const allTasks = workers.flatMap((worker) => worker.tasks || [])
@@ -161,7 +185,12 @@ const WorkerTable = () => {
         message: "Generating task report...",
         severity: "info",
       })
-      const response = await getFetcherPramspdf(enpoints.worker.taskReport)
+
+      const response = await getFetcherPramspdf(enpoints.worker.report)
+      if (!response || !response.data) {
+        throw new Error("Invalid response format")
+      }
+
       const blob = new Blob([response.data], { type: "application/pdf" })
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement("a")
@@ -170,6 +199,8 @@ const WorkerTable = () => {
       document.body.appendChild(link)
       link.click()
       link.remove()
+      window.URL.revokeObjectURL(url)
+
       setSnackbar({
         open: true,
         message: "Task report downloaded successfully",
@@ -203,7 +234,10 @@ const WorkerTable = () => {
                   height: "100%",
                   borderLeft: `5px solid ${card.borderColor}`,
                   transition: "transform 0.3s, box-shadow 0.3s",
-                  "&:hover": { transform: "translateY(-5px)", boxShadow: 4 },
+                  "&:hover": {
+                    transform: "translateY(-5px)",
+                    boxShadow: 4,
+                  },
                 }}
               >
                 <CardContent sx={{ display: "flex", alignItems: "center" }}>
@@ -234,6 +268,7 @@ const WorkerTable = () => {
           ))}
         </Grid>
 
+        {/* Filter & Actions */}
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3, flexWrap: "wrap", gap: 2 }}>
           <TextField
             placeholder="Search workers..."
@@ -250,7 +285,7 @@ const WorkerTable = () => {
               ),
             }}
           />
-          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
             <Button
               variant="contained"
               startIcon={<DownloadIcon />}
@@ -261,29 +296,42 @@ const WorkerTable = () => {
             </Button>
             <FormControl size="small" sx={{ minWidth: 150 }}>
               <InputLabel>Status Filter</InputLabel>
-              <Select
-                value={statusFilter}
-                onChange={handleFilterChange}
-                label="Status Filter"
-              >
+              <Select value={statusFilter} onChange={handleFilterChange} label="Status Filter">
                 <MenuItem value="">All</MenuItem>
+                <MenuItem value="Not Started">Not Started</MenuItem>
                 <MenuItem value="Pending">Pending</MenuItem>
                 <MenuItem value="To Do">To Do</MenuItem>
                 <MenuItem value="Completed">Completed</MenuItem>
               </Select>
             </FormControl>
-            <IconButton color="primary" sx={{ border: `1px solid ${theme.palette.primary.main}` }}>
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel>Expression Filter</InputLabel>
+              <Select value={expressionFilter} onChange={handleExpressionFilterChange} label="Expression Filter">
+                <MenuItem value="">All</MenuItem>
+                {Object.keys(expressionEmojiMap).map((expression) => (
+                  <MenuItem key={expression} value={expression}>
+                    {expressionEmojiMap[expression]} {expression}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <IconButton
+              color="primary"
+              sx={{ border: `1px solid ${theme.palette.primary.main}` }}
+              onClick={fetchWorkers} // <-- Refresh button handler
+            >
               <RefreshIcon />
             </IconButton>
           </Box>
         </Box>
 
+        {/* Table */}
         <Paper sx={{ width: "100%", overflow: "hidden", borderRadius: 2, boxShadow: 3 }}>
           <TableContainer>
             <Table sx={{ minWidth: 700 }}>
               <TableHead>
                 <TableRow sx={{ backgroundColor: theme.palette.secondary.main }}>
-                  {["First Name", "Last Name", "Email", "Country", "Expression", "Status"].map((head, index) => (
+                  {["Task ID", "Task Name", "Expression", "Status"].map((head, index) => (
                     <TableCell
                       key={index}
                       align="center"
@@ -302,61 +350,78 @@ const WorkerTable = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                    <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                       <Typography>Loading worker data...</Typography>
                     </TableCell>
                   </TableRow>
-                ) : filteredWorkers.length === 0 ? (
+                ) : allTasks.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
-                      <Typography>No workers found</Typography>
+                    <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                      <Typography>No tasks found</Typography>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredWorkers
+                  workers
+                    .flatMap((worker) =>
+                      (worker.tasks || []).map((task) => ({
+                        ...task,
+                        expressionStatus: worker.expressionStatus,
+                        workerId: worker.id,
+                        workerStatus: worker.status || "Not Started",
+                      }))
+                    )
+                    .filter((task) => {
+                      const matchesSearch = task.taskName
+                        ?.toLowerCase()
+                        .includes(searchTerm.toLowerCase())
+                      const matchesStatus = statusFilter ? task.workerStatus === statusFilter : true
+                      const matchesExpression = expressionFilter
+                        ? task.expressionStatus === expressionFilter
+                        : true
+                      return matchesSearch && matchesStatus && matchesExpression
+                    })
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((worker, idx) => (
+                    .map((task, idx) => (
                       <TableRow
-                        key={worker.id || idx}
+                        key={task.id || idx}
                         sx={{
                           backgroundColor: idx % 2 === 0 ? "#fafafa" : "white",
                           "&:hover": { backgroundColor: "#f0f7ff" },
                         }}
                       >
-                        <TableCell align="center">{worker.firstName}</TableCell>
-                        <TableCell align="center">{worker.lastName}</TableCell>
-                        <TableCell align="center">{worker.email}</TableCell>
-                        <TableCell align="center">{worker.country}</TableCell>
-                        <TableCell align="center">{worker.expression}</TableCell>
+                        <TableCell align="center">{task.id}</TableCell>
+                        <TableCell align="center">{task.taskName || "Untitled"}</TableCell>
+                        <TableCell align="center">
+                          {expressionEmojiMap[task.expressionStatus] || "❓"}{" "}
+                          {task.expressionStatus || "Unknown"}
+                        </TableCell>
                         <TableCell align="center">
                           <FormControl size="small" fullWidth>
                             <Select
-                              value={worker.status}
-                              onChange={(e) => handleStatusChange(worker.id, e.target.value)}
+                              value={task.workerStatus}
+                              onChange={(e) => handleStatusChange(task.workerId, e.target.value)}
                               sx={{
                                 minWidth: 130,
                                 backgroundColor:
-                                  worker.status === "Completed"
+                                  task.workerStatus === "Completed"
                                     ? "#A1EEBD"
-                                    : worker.status === "Pending"
+                                    : task.workerStatus === "Pending"
                                     ? "#FDB7EA"
-                                    : worker.status === "To Do"
+                                    : task.workerStatus === "To Do"
                                     ? "#A1E3F9"
                                     : "#eeeeee",
                                 fontWeight: 500,
                                 color:
-                                  worker.status === "Completed"
+                                  task.workerStatus === "Completed"
                                     ? "#2e7d32"
-                                    : worker.status === "Pending"
+                                    : task.workerStatus === "Pending"
                                     ? "#670D2F"
-                                    : worker.status === "To Do"
+                                    : task.workerStatus === "To Do"
                                     ? "#1565c0"
                                     : "#424242",
                               }}
                               MenuProps={{
-                                PaperProps: {
-                                  sx: { bgcolor: "#94B4C1" },
-                                },
+                                PaperProps: { sx: { bgcolor: "#94B4C1" } },
                               }}
                             >
                               <MenuItem value="Not Started">Not Started</MenuItem>
