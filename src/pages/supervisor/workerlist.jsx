@@ -25,14 +25,11 @@ import {
   ThemeProvider,
   Snackbar,
   Alert,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
 } from "@mui/material"
 
 import {
   Search as SearchIcon,
+  FilterList as FilterListIcon,
   Refresh as RefreshIcon,
   People as PeopleIcon,
   CheckCircle as CheckCircleIcon,
@@ -46,26 +43,11 @@ const WorkerTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
-  const [statusFilter, setStatusFilter] = useState("")
-  const [expressionFilter, setExpressionFilter] = useState("")
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   })
-
-  const expressionEmojiMap = {
-    Happy: "😊",
-    Neutral: "😐",
-    Curious: "🤔",
-    stressfull: "😩",
-    surprised: "😲",
-    Excited: "😄",
-    Confident: "😎",
-    Thoughtful: "💭",
-    Serious: "😐",
-    Joyful: "😁",
-  }
 
   const theme = createTheme({
     palette: {
@@ -80,34 +62,20 @@ const WorkerTable = () => {
     },
   })
 
-  const fetchWorkers = async () => {
-    setLoading(true)
-    try {
-      const data = await getFetcher(enpoints.worker.viewAll)
-      const enriched = data.map((w) => ({
-        ...w,
-        status: w.status || "Not Started",
-      }))
-      setWorkers(enriched)
-      console.log("Workers data:", enriched)
-      setSnackbar({
-        open: true,
-        message: "Data refreshed successfully",
-        severity: "success",
-      })
-    } catch (error) {
-      console.error("Error fetching workers:", error)
-      setSnackbar({
-        open: true,
-        message: "Failed to refresh data",
-        severity: "error",
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
+    const fetchWorkers = async () => {
+      setLoading(true)
+      try {
+        const data = await getFetcher(enpoints.worker.viewAll)
+        setWorkers(data)
+        console.log("Workers data:", data)
+      } catch (error) {
+        console.error("Error fetching workers:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchWorkers()
   }, [])
 
@@ -125,160 +93,201 @@ const WorkerTable = () => {
     setPage(0)
   }
 
-  const handleStatusChange = (id, newStatus) => {
-    const updatedWorkers = workers.map((w) =>
-      w.id === id ? { ...w, status: newStatus } : w
-    )
-    setWorkers(updatedWorkers)
-  }
+  const filteredWorkers = workers.filter(
+    (worker) =>
+      worker.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      worker.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      worker.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      worker.country?.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
 
-  const handleFilterChange = (event) => {
-    setStatusFilter(event.target.value)
-    setPage(0)
-  }
+  const activeWorkers = workers.filter((worker) => worker.status === "Active")
+  const inactiveWorkers = workers.filter((worker) => worker.status === "Inactive")
 
-  const handleExpressionFilterChange = (event) => {
-    setExpressionFilter(event.target.value)
-    setPage(0)
-  }
-
+  // Download PDF report function
   const downloadPDF = async () => {
     try {
+      // Show loading message
       setSnackbar({
         open: true,
-        message: "Generating task report...",
+        message: "Generating report...",
         severity: "info",
       })
 
+      // Call the API to get the PDF report
       const response = await getFetcherPramspdf(enpoints.worker.report)
-      if (!response || !response.data) {
-        throw new Error("Invalid response format")
-      }
+      console.log("PDF Response:", response)
 
+      // Create a blob from the PDF data
       const blob = new Blob([response.data], { type: "application/pdf" })
+
+      // Create a URL for the blob
       const url = window.URL.createObjectURL(blob)
+
+      // Create a link element
       const link = document.createElement("a")
       link.href = url
-      link.setAttribute("download", "Worker Tasks Report.pdf")
+      link.setAttribute("download", "Worker Report.pdf")
+
+      // Append to the document, click it, and remove it
       document.body.appendChild(link)
       link.click()
       link.remove()
-      window.URL.revokeObjectURL(url)
 
+      // Show success message
       setSnackbar({
         open: true,
-        message: "Task report downloaded successfully",
+        message: "Report downloaded successfully",
         severity: "success",
       })
     } catch (error) {
       console.error("Download error:", error)
+
+      // Show error message
       setSnackbar({
         open: true,
-        message: "Failed to download task report. Please try again.",
+        message: "Failed to download report. Please try again.",
         severity: "error",
       })
     }
   }
 
   const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") return
+    if (reason === "clickaway") {
+      return
+    }
     setSnackbar({ ...snackbar, open: false })
   }
-
-  const filteredWorkers = workers.filter((worker) => {
-    const matchesSearch =
-      worker.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      worker.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      worker.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      worker.country?.toLowerCase().includes(searchTerm.toLowerCase())
-
-    const matchesStatus = statusFilter ? worker.status === statusFilter : true
-    const matchesExpression = expressionFilter
-      ? worker.expressionStatus === expressionFilter
-      : true
-
-    return matchesSearch && matchesStatus && matchesExpression
-  })
-
-  const allTasks = workers.flatMap((worker) => worker.tasks || [])
-  const completedTasks = allTasks.filter((task) => task.status === "Completed")
-  const pendingTasks = allTasks.filter((task) => task.status === "Pending")
-
-  const taskCards = [
-    {
-      title: "Total Tasks",
-      count: allTasks.length,
-      icon: <PeopleIcon sx={{ fontSize: 30, color: theme.palette.primary.main }} />,
-      borderColor: theme.palette.primary.main,
-      bgColor: theme.palette.secondary.main,
-      textColor: theme.palette.primary.main,
-    },
-    {
-      title: "Completed Tasks",
-      count: completedTasks.length,
-      icon: <CheckCircleIcon sx={{ fontSize: 30, color: "#2e7d32" }} />,
-      borderColor: "#2e7d32",
-      bgColor: "#e8f5e9",
-      textColor: "#2e7d32",
-    },
-    {
-      title: "Pending Tasks",
-      count: pendingTasks.length,
-      icon: <CancelIcon sx={{ fontSize: 30, color: "#c62828" }} />,
-      borderColor: "#c62828",
-      bgColor: "#fff8e1",
-      textColor: "#c62828",
-    },
-  ]
 
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ padding: "24px" }}>
+        {/* Worker Stats Cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {taskCards.map((card, index) => (
-            <Grid item xs={12} md={4} key={index}>
-              <Card
-                sx={{
-                  boxShadow: 2,
-                  borderRadius: 2,
-                  height: "100%",
-                  borderLeft: `5px solid ${card.borderColor}`,
-                  transition: "transform 0.3s, box-shadow 0.3s",
-                  "&:hover": {
-                    transform: "translateY(-5px)",
-                    boxShadow: 4,
-                  },
-                }}
-              >
-                <CardContent sx={{ display: "flex", alignItems: "center" }}>
-                  <Box
-                    sx={{
-                      backgroundColor: card.bgColor,
-                      borderRadius: "50%",
-                      p: 1.5,
-                      mr: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
+          <Grid item xs={12} md={4}>
+            <Card
+              sx={{
+                boxShadow: 2,
+                borderRadius: 2,
+                height: "100%",
+                borderLeft: `5px solid ${theme.palette.primary.main}`,
+                transition: "transform 0.3s, box-shadow 0.3s",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: 4,
+                },
+              }}
+            >
+              <CardContent sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    backgroundColor: theme.palette.secondary.main,
+                    borderRadius: "50%",
+                    p: 1.5,
+                    mr: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <PeopleIcon sx={{ fontSize: 30, color: theme.palette.primary.main }} />
+                </Box>
+                <Box>
+                  <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 500 }}>
+                    All Workers
+                  </Typography>
+                  <Typography
+                    variant="h4"
+                    component="div"
+                    sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
                   >
-                    {card.icon}
-                  </Box>
-                  <Box>
-                    <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
-                      {card.title}
-                    </Typography>
-                    <Typography variant="h4" sx={{ fontWeight: "bold", color: card.textColor }}>
-                      {card.count}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+                    {workers.length}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card
+              sx={{
+                boxShadow: 2,
+                borderRadius: 2,
+                height: "100%",
+                borderLeft: "5px solid #2e7d32",
+                transition: "transform 0.3s, box-shadow 0.3s",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: 4,
+                },
+              }}
+            >
+              <CardContent sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    backgroundColor: "#e8f5e9",
+                    borderRadius: "50%",
+                    p: 1.5,
+                    mr: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CheckCircleIcon sx={{ fontSize: 30, color: "#2e7d32" }} />
+                </Box>
+                <Box>
+                  <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 500 }}>
+                    Active Workers
+                  </Typography>
+                  <Typography variant="h4" component="div" sx={{ fontWeight: "bold", color: "#2e7d32" }}>
+                    {activeWorkers.length}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card
+              sx={{
+                boxShadow: 2,
+                borderRadius: 2,
+                height: "100%",
+                borderLeft: "5px solid #c62828",
+                transition: "transform 0.3s, box-shadow 0.3s",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: 4,
+                },
+              }}
+            >
+              <CardContent sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    backgroundColor: "#ffebee",
+                    borderRadius: "50%",
+                    p: 1.5,
+                    mr: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CancelIcon sx={{ fontSize: 30, color: "#c62828" }} />
+                </Box>
+                <Box>
+                  <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 500 }}>
+                    Inactive Workers
+                  </Typography>
+                  <Typography variant="h4" component="div" sx={{ fontWeight: "bold", color: "#c62828" }}>
+                    {inactiveWorkers.length}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
 
-        {/* Filter & Actions */}
+        {/* Search and Actions */}
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3, flexWrap: "wrap", gap: 2 }}>
           <TextField
             placeholder="Search workers..."
@@ -295,7 +304,7 @@ const WorkerTable = () => {
               ),
             }}
           />
-          <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", gap: 1 }}>
             <Button
               variant="contained"
               startIcon={<DownloadIcon />}
@@ -304,41 +313,23 @@ const WorkerTable = () => {
             >
               Download
             </Button>
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Status Filter</InputLabel>
-              <Select value={statusFilter} onChange={handleFilterChange} label="Status Filter">
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="Not Started">Not Started</MenuItem>
-                <MenuItem value="Pending">Pending</MenuItem>
-                <MenuItem value="To Do">To Do</MenuItem>
-                <MenuItem value="Completed">Completed</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Expression Filter</InputLabel>
-              <Select value={expressionFilter} onChange={handleExpressionFilterChange} label="Expression Filter">
-                <MenuItem value="">All</MenuItem>
-                {Object.keys(expressionEmojiMap).map((expression) => (
-                  <MenuItem key={expression} value={expression}>
-                    {expressionEmojiMap[expression]} {expression}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <IconButton
-              color="primary"
-              sx={{ border: `1px solid ${theme.palette.primary.main}` }}
-              onClick={fetchWorkers} // Refresh works here
+            <Button
+              variant="outlined"
+              startIcon={<FilterListIcon />}
+              sx={{ borderColor: theme.palette.primary.main, color: theme.palette.primary.main }}
             >
+              Filter
+            </Button>
+            <IconButton color="primary" sx={{ border: `1px solid ${theme.palette.primary.main}` }}>
               <RefreshIcon />
             </IconButton>
           </Box>
         </Box>
 
-        {/* Table */}
+        {/* Worker Table */}
         <Paper sx={{ width: "100%", overflow: "hidden", borderRadius: 2, boxShadow: 3 }}>
           <TableContainer>
-            <Table sx={{ minWidth: 700 }}>
+            <Table sx={{ minWidth: 700 }} aria-label="styled worker table">
               <TableHead>
                 <TableRow sx={{ backgroundColor: theme.palette.secondary.main }}>
                   {["First Name", "Last Name", "Email", "Country", "Expression", "Status"].map((head, index) => (
@@ -371,64 +362,56 @@ const WorkerTable = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredWorkers
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((worker, idx) => (
-                      <TableRow
-                        key={worker.id || idx}
-                        sx={{
-                          backgroundColor: idx % 2 === 0 ? "#fafafa" : "white",
-                          "&:hover": { backgroundColor: "#f0f7ff" },
-                        }}
-                      >
-                        <TableCell align="center">{worker.firstName}</TableCell>
-                        <TableCell align="center">{worker.lastName}</TableCell>
-                        <TableCell align="center">{worker.email}</TableCell>
-                        <TableCell align="center">{worker.country}</TableCell>
-                        <TableCell align="center">
-                          {expressionEmojiMap[worker.expressionStatus] || "❓"}{" "}
-                          {worker.expressionStatus || "Unknown"}
-                        </TableCell>
-                        <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
-                          <FormControl size="small" fullWidth>
-                            <Select
-                              value={worker.status || "Not Started"}
-                              onChange={(e) => handleStatusChange(worker.id, e.target.value)}
-                              sx={{
-                                minWidth: 130,
-                                backgroundColor:
-                                  worker.status === "Completed"
-                                    ? "#A1EEBD"
-                                    : worker.status === "Pending"
-                                    ? "#FDB7EA"
-                                    : worker.status === "To Do"
-                                    ? "#A1E3F9"
-                                    : "#eeeeee",
-                                fontWeight: 500,
-                                color:
-                                  worker.status === "Completed"
-                                    ? "#2e7d32"
-                                    : worker.status === "Pending"
-                                    ? "#670D2F"
-                                    : worker.status === "To Do"
-                                    ? "#1565c0"
-                                    : "#424242",
-                              }}
-                              MenuProps={{
-                                PaperProps: {
-                                  sx: { bgcolor: "#94B4C1" },
-                                },
-                              }}
-                            >
-                              <MenuItem value="Not Started">Not Started</MenuItem>
-                              <MenuItem value="Pending">Pending</MenuItem>
-                              <MenuItem value="To Do">To Do</MenuItem>
-                              <MenuItem value="Completed">Completed</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                  filteredWorkers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((worker, idx) => (
+                    <TableRow
+                      key={worker.id || idx}
+                      sx={{
+                        backgroundColor: idx % 2 === 0 ? "#fafafa" : "white",
+                        "&:hover": { backgroundColor: "#f0f7ff" },
+                      }}
+                    >
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        {worker.firstName}
+                      </TableCell>
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        {worker.lastName}
+                      </TableCell>
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        {worker.email}
+                      </TableCell>
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        {worker.country}
+                      </TableCell>
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        {worker.expressionStatus}
+                      </TableCell>
+                      <TableCell align="center" sx={{ border: "1px solid #e0e0e0" }}>
+                        <Box
+                          sx={{
+                            backgroundColor:
+                              worker.status === "Active"
+                                ? "#e8f5e9"
+                                : worker.status === "Inactive"
+                                  ? "#ffebee"
+                                  : "#fff8e1",
+                            color:
+                              worker.status === "Active"
+                                ? "#2e7d32"
+                                : worker.status === "Inactive"
+                                  ? "#c62828"
+                                  : "#f57f17",
+                            borderRadius: 1,
+                            px: 1,
+                            py: 0.5,
+                            display: "inline-block",
+                            fontWeight: "medium",
+                          }}
+                        >
+                          {worker.status}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
@@ -449,6 +432,7 @@ const WorkerTable = () => {
         </Paper>
       </Box>
 
+      {/* Success/Error Snackbar */}
       <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
           {snackbar.message}
