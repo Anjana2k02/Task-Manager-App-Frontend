@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   TextField,
@@ -11,8 +11,11 @@ import {
   Select,
   InputLabel,
   FormControl,
+  Snackbar,
+  Alert,
+  Slide,
 } from "@mui/material";
-import { PersonAdd } from "@mui/icons-material";
+import { AssignmentTurnedIn } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -31,6 +34,8 @@ const schema = yup.object().shape({
 });
 
 export default function TaskCreate() {
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+
   const {
     register,
     handleSubmit,
@@ -50,36 +55,55 @@ export default function TaskCreate() {
   const onSubmit = async (data) => {
     const taskData = {
       ...data,
-      adminId: "Fire123456", // ✅ Hardcoded
+      adminId: "Fire123456",
       progress: 0,
       userId: "",
       supervisorId: "",
     };
 
     try {
-      const response = await postFetcher(enpoints.task.create, taskData);
-      console.log("Task created:", response);
-      reset(); // Clear form
-      alert("Task created successfully!");
+      await postFetcher(enpoints.task.create, taskData);
+      reset();
+      setSnackbar({
+        open: true,
+        message: "Task created successfully!",
+        severity: "success",
+      });
     } catch (error) {
       console.error("API Error:", error);
-      setError("apiError", { message: "Failed to create task. Please try again." });
+      setSnackbar({
+        open: true,
+        message: "Failed to create task. Please try again.",
+        severity: "error",
+      });
+      setError("apiError", { message: "Failed to create task" });
     }
   };
 
-  return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-        <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
-          <PersonAdd color="primary" />
-          <Typography variant="h5">Create Task</Typography>
-        </Box>
+  const handleCloseSnackbar = (_, reason) => {
+    if (reason === "clickaway") return;
+    setSnackbar({ ...snackbar, open: false });
+  };
 
-        {errors.apiError && (
-          <Typography color="error.main" sx={{ mb: 2 }}>
-            {errors.apiError.message}
+  return (
+    <Container maxWidth="sm" sx={{ pt: 4 }}>
+      <Paper
+        elevation={6}
+        sx={{
+          p: 4,
+          borderRadius: "12px",
+          border: "2px solid #2196f3",
+          background: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
+          transition: "0.3s",
+          "&:hover": { boxShadow: 8 },
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+          <AssignmentTurnedIn color="primary" sx={{ fontSize: 32 }} />
+          <Typography variant="h5" fontWeight={600} color="primary.dark">
+            Create New Task
           </Typography>
-        )}
+        </Box>
 
         <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
           <Grid container spacing={2}>
@@ -88,8 +112,6 @@ export default function TaskCreate() {
                 label="Task Title"
                 fullWidth
                 required
-                margin="normal"
-                size="medium"
                 {...register("title")}
                 error={!!errors.title}
                 helperText={errors.title?.message}
@@ -102,8 +124,6 @@ export default function TaskCreate() {
                 rows={4}
                 fullWidth
                 required
-                margin="normal"
-                size="medium"
                 {...register("description")}
                 error={!!errors.description}
                 helperText={errors.description?.message}
@@ -115,8 +135,6 @@ export default function TaskCreate() {
                 type="date"
                 fullWidth
                 required
-                margin="normal"
-                size="medium"
                 InputLabelProps={{ shrink: true }}
                 {...register("dueDate")}
                 error={!!errors.dueDate}
@@ -124,7 +142,7 @@ export default function TaskCreate() {
               />
             </Grid>
             <Grid item xs={12}>
-              <FormControl fullWidth required margin="normal" error={!!errors.priority}>
+              <FormControl fullWidth required error={!!errors.priority}>
                 <InputLabel id="priority-label">Priority</InputLabel>
                 <Select
                   labelId="priority-label"
@@ -132,9 +150,9 @@ export default function TaskCreate() {
                   defaultValue=""
                   {...register("priority")}
                 >
-                  <MenuItem value={1}>Critical</MenuItem>
-                  <MenuItem value={2}>High</MenuItem>
-                  <MenuItem value={3}>Standard</MenuItem>
+                  <MenuItem value={1}>🔥 Critical</MenuItem>
+                  <MenuItem value={2}>⚠️ High</MenuItem>
+                  <MenuItem value={3}>✅ Standard</MenuItem>
                 </Select>
                 <Typography variant="caption" color="error">
                   {errors.priority?.message}
@@ -147,13 +165,31 @@ export default function TaskCreate() {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2, py: 1.5 }}
+            sx={{
+              mt: 4,
+              py: 1.5,
+              fontWeight: "bold",
+              fontSize: "1rem",
+              background: "linear-gradient(45deg, #42a5f5, #1e88e5)",
+            }}
             disabled={isSubmitting}
           >
             {isSubmitting ? "Creating..." : "Create Task"}
           </Button>
         </Box>
       </Paper>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        TransitionComponent={Slide}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }
