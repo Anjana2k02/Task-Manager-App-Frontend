@@ -16,6 +16,8 @@ import LogoutService from "../auth/logout";
 
 const Header = () => {
   const [status, setStatus] = useState("");
+  const userType = localStorage.getItem("userType");
+  const userName = localStorage.getItem("userName");
 
 
   useEffect(() => {
@@ -55,8 +57,8 @@ const Header = () => {
   }, [status]);
 
   const userInfo = {
-    name: "Guest User",
-    role: "Worker",
+    name: userName,
+    role: userType,
   };
 
   return (
