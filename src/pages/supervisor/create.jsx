@@ -1,3 +1,5 @@
+
+
 import React, { useState } from "react";
 import {
   Box,
@@ -21,7 +23,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { enpoints, postFetcher } from "../../utils/axios";
 
-// ✅ Yup validation schema
+// ✅ Sample list of users for dropdown
+const users = [
+  { id: 'user1', name: 'Alice Johnson' },
+  { id: 'user2', name: 'Bob Smith' },
+  { id: 'user3', name: 'Charlie Brown' },
+];
+
+// ✅ Yup validation schema — includes assignedUser
 const schema = yup.object().shape({
   title: yup.string().required("Task title is required"),
   description: yup.string().required("Task description is required"),
@@ -31,6 +40,7 @@ const schema = yup.object().shape({
     .typeError("Priority must be selected")
     .oneOf([1, 2, 3], "Select a valid priority")
     .required("Priority is required"),
+  assignedUser: yup.string().required("Assigned user is required"),
 });
 
 export default function TaskCreate() {
@@ -49,6 +59,7 @@ export default function TaskCreate() {
       description: "",
       dueDate: "",
       priority: "",
+      assignedUser: "",
     },
   });
 
@@ -57,7 +68,7 @@ export default function TaskCreate() {
       ...data,
       adminId: "Fire123456",
       progress: 0,
-      userId: "",
+      userId: data.assignedUser, // Optional: map assignedUser into userId here
       supervisorId: "",
     };
 
@@ -156,6 +167,28 @@ export default function TaskCreate() {
                 </Select>
                 <Typography variant="caption" color="error">
                   {errors.priority?.message}
+                </Typography>
+              </FormControl>
+            </Grid>
+
+            {/* ✅ Assigned User Dropdown Field */}
+            <Grid item xs={12}>
+              <FormControl fullWidth required error={!!errors.assignedUser}>
+                <InputLabel id="assigned-user-label">Assigned User</InputLabel>
+                <Select
+                  labelId="assigned-user-label"
+                  label="Assigned User"
+                  defaultValue=""
+                  {...register("assignedUser")}
+                >
+                  {users.map((user) => (
+                    <MenuItem key={user.id} value={user.id}>
+                      {user.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                <Typography variant="caption" color="error">
+                  {errors.assignedUser?.message}
                 </Typography>
               </FormControl>
             </Grid>
