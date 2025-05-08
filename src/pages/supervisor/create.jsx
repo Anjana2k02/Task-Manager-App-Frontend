@@ -54,10 +54,12 @@ export default function TaskCreate() {
     control,
     formState: { errors, isSubmitting },
     setError,
+    setValue,
   } = methods;
 
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [workers, setWorkers] = useState([]); // State to hold the list of users
+  const [task, settask] = useState([]); // State to hold the list of tasks
 
   const onSubmit = async (data) => {
     const taskData = {
@@ -105,6 +107,27 @@ export default function TaskCreate() {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const data = await getFetcher(enpoints.task.viewAll);
+        settask(data);
+        console.log('task list', data);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    };
+    fetchTasks();
+  }, []);
+
+  const handleTaskSelect = (e, selectedTask) => {
+    if (selectedTask) {
+      // Set the values for description, dueDate, and other fields based on the selected task
+      setValue("description", selectedTask.description);
+      setValue("dueDate", selectedTask.dueDate); // Populate dueDate field
+    }
+  };
+
   return (
     <FormProvider {...methods}>
       <Container maxWidth="sm" sx={{ pt: 4 }}>
@@ -120,7 +143,7 @@ export default function TaskCreate() {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
-            <AssignmentTurnedIn color="primary" sx={{ fontSize: 32 }} />
+            <AssignmentTurnedIn color="primary" sx={{ fontSize: 32 }} /> 
             <Typography variant="h5" fontWeight={600} color="primary.dark">
               Create New Task
             </Typography>
@@ -129,15 +152,46 @@ export default function TaskCreate() {
           <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <TextField
-                  label="Task Title"
-                  fullWidth
-                  required
-                  {...register("title")}
-                  error={!!errors.title}
-                  helperText={errors.title?.message}
+                <Controller
+                  name="title"
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      fullWidth
+                      options={task}
+                      getOptionLabel={(option) =>
+                        option.t_no && option.task ? `${option.t_no} - ${option.task}` : ""
+                      }
+                      onChange={(e, value) => {
+                        field.onChange(value?.task || "");
+                        setValue("description", value?.description || "");
+                        setValue("dueDate", value?.dueDate || ""); // Populate dueDate when task is selected
+                      }}
+                      renderOption={(props, option) => (
+                        <li {...props}>
+                          <Box>
+                            <Typography fontWeight={600}>
+                              {option.t_no} - {option.task}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {option.description}
+                            </Typography>
+                          </Box>
+                        </li>
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Task Title"
+                          error={!!errors.title}
+                          helperText={errors.title?.message}
+                        />
+                      )}
+                    />
+                  )}
                 />
               </Grid>
+
               <Grid item xs={12}>
                 <TextField
                   label="Task Description"
@@ -150,6 +204,7 @@ export default function TaskCreate() {
                   helperText={errors.description?.message}
                 />
               </Grid>
+
               <Grid item xs={12}>
                 <TextField
                   label="Due Date"
@@ -162,6 +217,7 @@ export default function TaskCreate() {
                   helperText={errors.dueDate?.message}
                 />
               </Grid>
+
               <Grid item xs={12}>
                 <FormControl fullWidth required error={!!errors.priority}>
                   <InputLabel id="priority-label">Priority</InputLabel>
@@ -190,7 +246,9 @@ export default function TaskCreate() {
                     <Autocomplete
                       fullWidth
                       options={workers}
-                      getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
+                      getOptionLabel={(option) =>
+                        `${option.firstName} ${option.lastName}`
+                      }
                       onChange={(e, value) => field.onChange(value?.id || "")}
                       renderInput={(params) => (
                         <TextField
