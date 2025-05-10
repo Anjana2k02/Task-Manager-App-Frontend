@@ -100,12 +100,15 @@ const ProgressSelect = styled(Select)(({ theme, value }) => {
 })
 
 const TaskTable = () => {
+  const userId = localStorage.getItem("userId");
   const [tasks, setTasks] = useState([])
   const [expandedRows, setExpandedRows] = useState({})
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+
+  console.log("User ID:", userId)
 
   // Custom theme with blue primary color
   const theme = createTheme({
@@ -179,22 +182,26 @@ const TaskTable = () => {
     },
   })
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      setLoading(true)
-      try {
-        const data = await getFetcher(enpoints.task.viewAll)
-        const filteredTasks = data.filter((task) => task.userId === "dev014")
-        setTasks(filteredTasks)
-      } catch (error) {
-        console.error("Error fetching tasks:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
+useEffect(() => {
+  const fetchTasks = async () => {
+    setLoading(true);
+    try {
+      const data = await getFetcher(enpoints.task.viewAll);
 
-    fetchTasks()
-  }, [])
+      // Correct usage: compare with userId as a variable (not a string or object)
+      const filteredTasks = data.filter((task) => task.userId === userId);
+      setTasks(filteredTasks);
+      console.log("taskByUserId:", filteredTasks);
+      
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTasks();
+}, []);
 
   const handleToggleRow = (id) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -237,11 +244,14 @@ const TaskTable = () => {
   }
 
   // Filter tasks based on search term
-  const filteredTasks = tasks.filter(
-    (task) =>
-      task.task.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+const filteredTasks = tasks.filter((task) => {
+  const taskName = task.task?.toLowerCase() || "";
+  const description = task.description?.toLowerCase() || "";
+  const search = searchTerm.toLowerCase();
+
+  return taskName.includes(search) || description.includes(search);
+});
+
 
   // Get priority chip color
   const getPriorityColor = (priority) => {
