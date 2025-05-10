@@ -6,8 +6,8 @@ import customTheme from '../../theme/theme';
 export default function Admin() {
   return (
     <div>
-      <h1>Project List</h1>
-      <p>View all registered projects</p>
+      <h1>Task List</h1>
+      <p>View all registered tasks</p>
       <AdminTable />
     </div>
   );

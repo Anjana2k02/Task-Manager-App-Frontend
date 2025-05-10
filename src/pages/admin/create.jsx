@@ -219,9 +219,9 @@ export default function TaskCreate() {
                   fullWidth
                   required
                 >
-                  <MenuItem value="1">🔥 Critical</MenuItem>
-                  <MenuItem value="2">⚠️ High</MenuItem>
-                  <MenuItem value="3">✅ Standard</MenuItem>
+                  <MenuItem value="1">High</MenuItem>
+                  <MenuItem value="2">Medium</MenuItem>
+                  <MenuItem value="3">Low</MenuItem>
                 </TextField>
               </Grid>
 
