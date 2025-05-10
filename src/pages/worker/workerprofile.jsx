@@ -428,19 +428,19 @@ const schedule = [
 
 // Chart data
 const pieData = [
-  { name: "Pending", value: 10, color: "#ef4444" },
-  { name: "Developing", value: 15, color: "#f59e0b" },
-  { name: "Testing", value: 12, color: "#3b82f6" },
-  { name: "QA Testing", value: 8, color: "#8b5cf6" },
+  { name: "Pending", value: 10, color: "#D50B8B" },
+  { name: "Developing", value: 15, color: "#e176e5" },
+  { name: "Testing", value: 12, color: "#d68149" },
+  { name: "QA Testing", value: 8, color: "#0baecd" },
   { name: "Completed", value: 20, color: "#10b981" },
 ]
 
 // Modified project progress pie chart data with 5 sections
 const projectProgressData = [
-  { name: "Pending", value: 10, color: "#ef4444" },
-  { name: "Developing", value: 15, color: "#f59e0b" },
-  { name: "Testing", value: 12, color: "#3b82f6" },
-  { name: "QA Testing", value: 8, color: "#8b5cf6" },
+  { name: "Pending", value: 10, color: "#D50B8B" },
+  { name: "Developing", value: 15, color: "#e176e5" },
+  { name: "Testing", value: 12, color: "#d68149" },
+  { name: "QA Testing", value: 8, color: "#0baecd" },
   { name: "Completed", value: 20, color: "#10b981" }
 ]
 
