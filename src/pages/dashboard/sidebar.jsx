@@ -149,7 +149,7 @@ const Sidebarmain = () => {
       color: colors.supervisor,
       submenu: [
         { text: "My Dashboard", path: "/supervisor/supervisorhome" },
-        { text: "Manage", path: "/supervisor/manage" },
+        //{ text: "Manage", path: "/supervisor/manage" },
         { text: "Task Manage", path: "/supervisor/manage-all-task" },
         // { text: "Create", path: "/supervisor/create" },
         { text: "Worker Create", path: "/worker/create" },
