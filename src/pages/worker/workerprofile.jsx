@@ -697,7 +697,7 @@ const WorkerProfile = () => {
                 Active Projects
               </Typography>
               <Typography variant="h4" fontWeight="bold">
-                8
+                4
               </Typography>
               <Typography
                 variant="caption"
@@ -737,7 +737,7 @@ const WorkerProfile = () => {
                 Pending Tasks
               </Typography>
               <Typography variant="h4" fontWeight="bold">
-                8
+                5
               </Typography>
               <Typography
                 variant="caption"
@@ -896,7 +896,6 @@ const WorkerProfile = () => {
         >
           <Tab label="Projects" />
           <Tab label="Schedule" />
-          <Tab label="Activity" />
         </Tabs>
       </Box>
 

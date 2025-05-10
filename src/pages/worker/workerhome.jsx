@@ -10,10 +10,10 @@ import {
 } from '@mui/icons-material';
 
 const userData = {
-  firstName: "Alexa",
-  lastName: "Rawles",
-  email: "alexa.rawles@example.com",
-  country: "United States",
+  firstName: "Senu",
+  lastName: "Ranasinghe",
+  email: "senurane@gmail.com",
+  country: "Sri Lanka",
   status: "Happy",
   position: "Software Engineer",
   department: "Engineering",
