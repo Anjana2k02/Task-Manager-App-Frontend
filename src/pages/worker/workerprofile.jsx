@@ -426,66 +426,24 @@ const schedule = [
   },
 ]
 
-// Additional data for enhanced dashboard
-const recentActivities = [
-  {
-    user: "Sevindi jayathilake",
-    action: "commented on",
-    item: "Mobile App Design",
-    time: "5 min ago",
-    avatar: "/placeholder.svg?height=40&width=40",
-    color: "#6366f1",
-  },
-  {
-    user: "Anjana wickramasinghe",
-    action: "completed task",
-    item: "Create wireframes",
-    time: "1 hour ago",
-    avatar: "/placeholder.svg?height=40&width=40",
-    color: "#10b981",
-  },
-  {
-    user: "Senumi ranasinghe",
-    action: "uploaded file",
-    item: "Project brief.pdf",
-    time: "3 hours ago",
-    avatar: "/placeholder.svg?height=40&width=40",
-    color: "#f59e0b",
-  },
-  {
-    user: "Lashan achintha",
-    action: "created task",
-    item: "Design review meeting",
-    time: "5 hours ago",
-    avatar: "/placeholder.svg?height=40&width=40",
-    color: "#ec4899",
-  },
-]
-
 // Chart data
 const pieData = [
-  { name: "Completed", value: 24, color: "#10b981" },
-  { name: "In Progress", value: 12, color: "#f59e0b" },
-  { name: "Not Started", value: 8, color: "#ef4444" },
+  { name: "Pending", value: 10, color: "#D50B8B" },
+  { name: "Developing", value: 15, color: "#e176e5" },
+  { name: "Testing", value: 12, color: "#d68149" },
+  { name: "QA Testing", value: 8, color: "#0baecd" },
+  { name: "Completed", value: 20, color: "#10b981" },
 ]
 
-// New project progress pie chart data
+// Modified project progress pie chart data with 5 sections
 const projectProgressData = [
-  { name: "Completed", value: 24, color: "#10b981" },
-  { name: "In Progress", value: 12, color: "#f59e0b" },
-  { name: "Not Started", value: 8, color: "#ef4444" },
+  { name: "Pending", value: 10, color: "#D50B8B" },
+  { name: "Developing", value: 15, color: "#e176e5" },
+  { name: "Testing", value: 12, color: "#d68149" },
+  { name: "QA Testing", value: 8, color: "#0baecd" },
+  { name: "Completed", value: 20, color: "#10b981" }
 ]
 
-const areaData = [
-  { name: "Jan", completed: 4, inProgress: 3, notStarted: 2 },
-  { name: "Feb", completed: 6, inProgress: 4, notStarted: 3 },
-  { name: "Mar", completed: 8, inProgress: 5, notStarted: 2 },
-  { name: "Apr", completed: 10, inProgress: 6, notStarted: 3 },
-  { name: "May", completed: 12, inProgress: 7, notStarted: 4 },
-  { name: "Jun", completed: 16, inProgress: 8, notStarted: 3 },
-  { name: "Jul", completed: 20, inProgress: 10, notStarted: 4 },
-  { name: "Aug", completed: 24, inProgress: 12, notStarted: 8 },
-]
 
 // Custom active shape for pie chart
 const renderActiveShape = (props) => {
@@ -667,7 +625,7 @@ const WorkerProfile = () => {
               Welcome back, Senuu!
             </Typography>
             <Typography variant="body1" sx={{ opacity: 0.9, mb: 2 }}>
-              You have 4 tasks due today and 8 new messages. Your team is making good progress!
+              You have 5 tasks due today and 8 new messages. Your team is making good progress!
             </Typography>
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
               <GradientButton variant="contained" startIcon={<Add />} startcolor="#6366f1" endcolor="#8b5cf6">
@@ -678,7 +636,7 @@ const WorkerProfile = () => {
                 sx={{
                   borderColor: "rgba(255,255,255,0.5)",
                   color: "white",
-                  borderRadius: 12,
+                  borderRadius: 10,
                   "&:hover": {
                     borderColor: "white",
                     backgroundColor: "rgba(255,255,255,0.1)",
@@ -718,7 +676,7 @@ const WorkerProfile = () => {
                 }}
               >
                 <Typography variant="h4" fontWeight="bold">
-                  12
+                  5
                 </Typography>
                 <Typography variant="body2">Tasks</Typography>
               </Box>
@@ -815,7 +773,7 @@ const WorkerProfile = () => {
         </Grid>
       </Grid>
 
-      {/* Project Progress Chart - UPDATED TO PIE CHART */}
+      {/* Project Progress Chart - UPDATED TO PIE CHART WITH 5 SECTIONS */}
       <ChartCard sx={{ mb: 4 }}>
         <CardHeader
           title={
@@ -836,8 +794,11 @@ const WorkerProfile = () => {
               </Button>
               <Menu anchorEl={filterAnchorEl} open={Boolean(filterAnchorEl)} onClose={handleFilterClose}>
                 <MenuItem onClick={handleFilterClose}>All Projects</MenuItem>
-                <MenuItem onClick={handleFilterClose}>Active Projects</MenuItem>
-                <MenuItem onClick={handleFilterClose}>Completed Projects</MenuItem>
+                <MenuItem onClick={handleFilterClose}>Pending</MenuItem>
+                <MenuItem onClick={handleFilterClose}>Developing</MenuItem>
+                <MenuItem onClick={handleFilterClose}>Testing </MenuItem>
+                <MenuItem onClick={handleFilterClose}>QA Testing</MenuItem>
+                <MenuItem onClick={handleFilterClose}>Completed</MenuItem>
               </Menu>
             </Box>
           }
@@ -899,7 +860,7 @@ const WorkerProfile = () => {
                   <Typography variant="body2" color="text.secondary">
                     Completion Rate:{" "}
                     {Math.round(
-                      (projectProgressData[0].value / projectProgressData.reduce((sum, item) => sum + item.value, 0)) *
+                      (projectProgressData[4].value / projectProgressData.reduce((sum, item) => sum + item.value, 0)) *
                         100
                     )}
                     %
