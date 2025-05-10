@@ -8,6 +8,7 @@ import { Edit, Delete } from '@mui/icons-material';
 import { getFetcher, deleteFetcher, putFetcher, enpoints } from '../../utils/axios';
 
 const AdminTable = () => {
+  const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -54,27 +55,44 @@ const AdminTable = () => {
 
   const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
+  // Fetch tasks
+  const fetchTasks = async () => {
+    try {
+      const data = await getFetcher(enpoints.task.viewAll);
+      setTasks(data);
+      console.log('Tasks:', data);
+      
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>Project Overview</Typography>
+      <Typography variant="h5" gutterBottom>Task List</Typography>
 
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Project Title</TableCell>
-              <TableCell>Start Date</TableCell>
-              <TableCell>End Date</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>T no</TableCell>
+              <TableCell>Task</TableCell>
+              <TableCell>Description</TableCell>
+              <TableCell>Progress</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {projects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((project) => (
+            {tasks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((project) => (
               <TableRow key={project.id}>
-                <TableCell>{project.title}</TableCell>
-                <TableCell>{new Date(project.startDate).toLocaleDateString()}</TableCell>
-                <TableCell>{new Date(project.endDate).toLocaleDateString()}</TableCell>
+                <TableCell>{project.t_no}</TableCell>
+                <TableCell>{project.task}</TableCell>
+                <TableCell>{project.description}</TableCell>
+                <TableCell>{project.progress}</TableCell>
                 <TableCell>{project.status}</TableCell>
                 <TableCell>
                   <IconButton color="error" onClick={() => confirmDelete(project.id)}><Delete /></IconButton>
@@ -88,7 +106,7 @@ const AdminTable = () => {
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
-        count={projects.length}
+        count={tasks.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
