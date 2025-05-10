@@ -19,17 +19,19 @@ const WorkerTask = lazy(() => import("../pages/worker/tasklist"));
 const MyTaskList = lazy(() => import("../pages/myTask/list"));
 const MyTaskOverview = lazy(() => import("../pages/myTask/overview"));
 
-const AdminDashboard = lazy(() => import("../pages/admin/admindashboard"));
-const TaskReassignList = lazy(() => import("../pages/admin/requestlist"));
-const RequestForm = lazy(() => import("../pages/admin/requestcreate"));
-const RequestUpdate = lazy(() => import("../pages/admin/requestupdate"));
-const RequestDelete = lazy(() => import("../pages/admin/requestdelete"));
+const AdminList = lazy(() => import("../pages/admin/list"));
+const AdminCreate = lazy(() => import("../pages/admin/create"));
+const AdminManage = lazy(() => import("../pages/admin/manage"));
+// const AdminuserManagement = lazy(() => import("../pages/admin/userManagement"));
+const AdminHome = lazy(() => import("../pages/admin/adminHome"));
+
 
 const SupervisorList = lazy(() => import("../pages/supervisor/list"));
 const SupervisorCreate = lazy(() => import("../pages/supervisor/create"));
 const SupervisorManage = lazy(() => import("../pages/supervisor/manage"));
 const Supervisorworkerlist = lazy(() => import("../pages/supervisor/workerlist"));
 const SupervisorHome = lazy(() => import("../pages/supervisor/supervisorhome"));
+const SupervisorTaskManage = lazy(() => import("../pages/supervisor/manageTask"));
 
 const TaskList = lazy(() => import("../pages/task/list"));
 const TaskCreate = lazy(() => import("../pages/task/create"));
@@ -91,11 +93,11 @@ export default function Paths() {
       <Suspense fallback={<Loading />}>
         <Routes>
           {/* Admin Routes */}
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/requestlist" element={<TaskReassignList />} />
-          <Route path="/admin/requestcreate" element={<RequestForm />} />
-          <Route path="/admin/requestupdate" element={<RequestUpdate />} />
-          <Route path="/admin/requestdelete" element={<RequestDelete />} />
+          <Route path="/admin/list" element={<AdminList />} />
+          <Route path="/admin/create" element={<AdminCreate />} />
+          <Route path="/admin/manage" element={<AdminManage />} />
+         {/*<Route path="/admin/userManagement" element={<AdminuserManagement />} />*/}
+          <Route path="/admin/adminHome" element={<AdminHome />} />
 
           {/* User Routes */}
           <Route path="/user/list" element={<UserList />} />
@@ -108,6 +110,8 @@ export default function Paths() {
           <Route path="/supervisor/manage" element={<SupervisorManage />} />
           <Route path="/supervisor/workerlist"element={<Supervisorworkerlist/>} />
           <Route path="/supervisor/supervisorhome" element={<SupervisorHome />} />
+          <Route path="/supervisor/manage-all-task" element={<SupervisorTaskManage />} />
+
 
           {/* Worker Routes */}
           <Route path="/worker/list" element={<WorkerList />} />

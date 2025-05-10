@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Pen } from "lucide-react";
 
 const HOST_API = "http://localhost:8080/api";
 
@@ -124,11 +125,24 @@ export const patchExpressionStatusFetcher = async (id, status, config) => {
     
     task: {
       create: "/task/create",
-      update: "/task/update",
+      update: "/task/update/{id}",
       delete: "/task/delete/{id}",
       view: "/task/view/{id}",
       viewAll: "/task/view/all",
       report: "/task/report",
+      
+      // filter
+      allTaskCount: "/task/task-count",
+      completeTaskCount: "/task/completed-task-count",
+      incompleteTaskCount: "/task/in-completed-task-count",
+
+      // advanced filter
+      pendingTaskCount: "/task/pending-task-count",
+      developpingTaskCount: "/task/developing-task-count",
+      testingTaskCount: "/task/testing-task-count",
+      QACompletedTaskCount: "/task/qa-completed-task-count",
+      
+
     },
   }
 

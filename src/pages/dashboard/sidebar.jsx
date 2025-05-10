@@ -60,7 +60,7 @@ const Sidebarmain = () => {
   const colors = {
     dashboard: "#3498db", // Light blue (matching header)
     user: "#2980b9", // Darker blue
-    worker: "#9b59b6", // Purple
+    worker: "#D50B8B", // Purple
     tasks: "#1abc9c", // Teal
     taskDividing: "#27ae60", // Green
     supervisor: "#e74c3c", // Red
@@ -100,10 +100,9 @@ const Sidebarmain = () => {
       submenu: [
         { text: "Worker Profile", path: "/worker/workerprofile" },
         { text: "Workers", path: "/worker/list" },
-        { text: "Create", path: "/worker/create" },
+        { text: "Create Worker", path: "/worker/create" },
         { text: "Worker Home", path: "/worker/workerhome" },
         { text: "Manage", path: "/worker/manage" },
-        { text: "Worker Tasks", path: "/worker/tasklist" },
       ],
     },
     {
@@ -149,12 +148,14 @@ const Sidebarmain = () => {
       submenuKey: "supervisors",
       color: colors.supervisor,
       submenu: [
-        { text: "supervisor Home", path: "/supervisor/supervisorhome" },
-        { text: "Create", path: "/supervisor/create" },
-        { text: "Supervisor", path: "/supervisor/list" },
+        { text: "My Dashboard", path: "/supervisor/supervisorhome" },
         { text: "Manage", path: "/supervisor/manage" },
-        { text: "Worker list", path: "/supervisor/workerlist" },
+        { text: "Task Manage", path: "/supervisor/manage-all-task" },
+        // { text: "Create", path: "/supervisor/create" },
         { text: "Worker Create", path: "/worker/create" },
+        { text: "Worker list", path: "/supervisor/workerlist" },
+        { text: "Create Supervisor", path: "/supervisor/create" },
+        { text: "Manage", path: "/supervisor/manage" },
        
       ],
     },
@@ -165,8 +166,13 @@ const Sidebarmain = () => {
       submenuKey: "admin",
       color: colors.admin,
       submenu: [
-        { text: "Settings", path: "/admin/settings" },
-        { text: "Logs", path: "/admin/logs" },
+        { text: "Admin Dashboard", path: "/admin/adminHome" },
+        { text: "Create Tasks", path: "/admin/create" },
+        {text: "Task List", path: "/admin/list" },
+       // { text: "Manage Tasks", path: "/admin/manage" },
+       // { text: "User Management", path: "/admin/userManagement" },
+        
+
       ],
     },
     {

@@ -111,7 +111,9 @@ export default function TaskCreate() {
     const fetchTasks = async () => {
       try {
         const data = await getFetcher(enpoints.task.viewAll);
-        settask(data);
+        const filteredData = data.filter(task => task.supervisorId === "");
+        settask(filteredData)
+       // settask(data);
         console.log('task list', data);
       } catch (error) {
         console.error("Error fetching tasks:", error);
