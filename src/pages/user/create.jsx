@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 import {
   Box,
   TextField,
@@ -9,10 +9,13 @@ import {
   InputAdornment,
   IconButton,
   Autocomplete,
-} from "@mui/material";
-import Grid from "@mui/material/Grid";
-import { Visibility, VisibilityOff, PersonAdd } from "@mui/icons-material";
-import { enpoints, postFetcher } from "../../utils/axios";
+  Grid,
+  Snackbar,
+  Alert,
+  Slide,
+} from "@mui/material"
+import { Visibility, VisibilityOff, PersonAdd } from "@mui/icons-material"
+import { enpoints, postFetcher } from "../../utils/axios"
 
 export default function UserCreate() {
   const [formData, setFormData] = useState({
@@ -22,86 +25,96 @@ export default function UserCreate() {
     password: "",
     devType: "",
     country: "",
-  });
+  })
 
-  const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [countries, setCountries] = useState([]);
+  const [errors, setErrors] = useState({})
+  const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" })
+  const [countries, setCountries] = useState([])
 
-  // Fetch countries once
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const res = await fetch("https://restcountries.com/v3.1/all");
-        const data = await res.json();
+        const res = await fetch("https://restcountries.com/v3.1/all")
+        const data = await res.json()
         const parsed = data
           .map((c) => ({
             name: c.name.common,
             flag: c.flags?.png || "",
           }))
-          .sort((a, b) => a.name.localeCompare(b.name));
-        setCountries(parsed);
+          .sort((a, b) => a.name.localeCompare(b.name))
+        setCountries(parsed)
       } catch (err) {
-        console.error("Error fetching countries:", err);
+        console.error("Error fetching countries:", err)
       }
-    };
+    }
 
-    fetchCountries();
-  }, []);
+    fetchCountries()
+  }, [])
+
+  const devTypes = [
+    { label: "Software Developing", value: 1 },
+    { label: "Data Analytics", value: 2 },
+    { label: "Testing", value: 3 },
+    { label: "DevOps", value: 4 },
+  ]
+
+  const validateForm = () => {
+    const newErrors = {}
+    if (!formData.firstName.trim()) newErrors.firstName = "First name is required"
+    if (!formData.secondName.trim()) newErrors.secondName = "Second name is required"
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required"
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid"
+    }
+    if (!formData.password || formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters"
+    if (!formData.country) newErrors.country = "Country is required"
+    if (!formData.devType) newErrors.devType = "Developer type is required"
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }));
+    }))
 
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
         [name]: null,
-      }));
+      }))
     }
-  };
+  }
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.firstName.trim())
-      newErrors.firstName = "First name is required";
-    if (!formData.secondName.trim())
-      newErrors.secondName = "Second name is required";
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
-    }
-    if (!formData.password || formData.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters";
-    if (!formData.country) newErrors.country = "Country is required";
-    if (!formData.devType) newErrors.devType = "Developer type is required";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev)
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+    e.preventDefault()
+    if (!validateForm()) return
 
-    setIsSubmitting(true);
-    setSuccessMessage("");
+    setIsSubmitting(true)
+    setSnackbar({ open: false, message: "", severity: "success" })
 
     try {
       const payload = {
         ...formData,
-        userType: "worker", // hardcoded
-      };
+        userType: "worker",
+      }
 
-      const response = await postFetcher(enpoints.user.create, payload);
-      console.log("User created:", response);
-      setSuccessMessage("User created successfully!");
+      await postFetcher(enpoints.user.create, payload)
+
+      setSnackbar({
+        open: true,
+        message: "User created successfully!",
+        severity: "success",
+      })
 
       setFormData({
         firstName: "",
@@ -110,35 +123,43 @@ export default function UserCreate() {
         password: "",
         devType: "",
         country: "",
-      });
+      })
     } catch (err) {
-      console.error("Error creating user:", err);
-      setErrors({ apiError: "Failed to create user. Try again." });
+      console.error("Error creating user:", err)
+      setSnackbar({
+        open: true,
+        message: "Failed to create user. Please try again.",
+        severity: "error",
+      })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
-  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+  const handleCloseSnackbar = (_, reason) => {
+    if (reason === "clickaway") return
+    setSnackbar({ ...snackbar, open: false })
+  }
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-        <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
-          <PersonAdd color="primary" />
-          <Typography variant="h5">Create Worker Account</Typography>
+    <Container maxWidth="sm" sx={{ pt: 4 }}>
+      <Paper
+        elevation={6}
+        sx={{
+          p: 4,
+          borderRadius: "12px",
+          border: "2px solid #2196f3",
+          background: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
+          transition: "0.3s",
+          "&:hover": { boxShadow: 8 },
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+          <PersonAdd color="primary" sx={{ fontSize: 32 }} />
+          <Typography variant="h5" fontWeight={600} color="primary.dark">
+            Create User Account
+          </Typography>
         </Box>
-
-        {successMessage && (
-          <Typography color="success.main" sx={{ mb: 2 }}>
-            {successMessage}
-          </Typography>
-        )}
-        {errors.apiError && (
-          <Typography color="error.main" sx={{ mb: 2 }}>
-            {errors.apiError}
-          </Typography>
-        )}
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <Grid container spacing={2}>
@@ -152,8 +173,6 @@ export default function UserCreate() {
                 helperText={errors.firstName}
                 fullWidth
                 required
-                margin="normal"
-                size="medium"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -166,17 +185,14 @@ export default function UserCreate() {
                 helperText={errors.secondName}
                 fullWidth
                 required
-                margin="normal"
-                size="medium"
               />
             </Grid>
+
             <Grid item xs={12}>
               <Autocomplete
                 options={countries}
                 getOptionLabel={(option) => option.name}
-                value={
-                  countries.find((c) => c.name === formData.country) || null
-                }
+                value={countries.find((c) => c.name === formData.country) || null}
                 onChange={(e, value) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -185,12 +201,7 @@ export default function UserCreate() {
                 }
                 renderOption={(props, option) => (
                   <Box component="li" {...props}>
-                    <img
-                      src={option.flag}
-                      alt=""
-                      width="20"
-                      style={{ marginRight: 10 }}
-                    />
+                    <img src={option.flag} alt="" width="20" style={{ marginRight: 10 }} />
                     {option.name}
                   </Box>
                 )}
@@ -201,12 +212,12 @@ export default function UserCreate() {
                     error={!!errors.country}
                     helperText={errors.country}
                     required
-                    margin="normal"
                     fullWidth
                   />
                 )}
               />
             </Grid>
+
             <Grid item xs={12}>
               <TextField
                 name="email"
@@ -218,10 +229,9 @@ export default function UserCreate() {
                 helperText={errors.email}
                 fullWidth
                 required
-                margin="normal"
-                size="medium"
               />
             </Grid>
+
             <Grid item xs={12}>
               <TextField
                 name="password"
@@ -233,8 +243,6 @@ export default function UserCreate() {
                 helperText={errors.password}
                 fullWidth
                 required
-                margin="normal"
-                size="medium"
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
@@ -246,28 +254,17 @@ export default function UserCreate() {
                 }}
               />
             </Grid>
+
             <Grid item xs={12}>
               <Autocomplete
-                options={[
-                  { label: "Software Developing", value: 1 },
-                  { label: "Data Analytics", value: 2 },
-                  { label: "Testing", value: 3 },
-                  { label: "DevOps", value: 4 },
-                ]}
+                options={devTypes}
                 getOptionLabel={(option) => option.label}
-                value={
-                  [
-                    { label: "Software Developing", value: 1 },
-                    { label: "Data Analytics", value: 2 },
-                    { label: "Testing", value: 3 },
-                    { label: "DevOps", value: 4 },
-                  ].find((opt) => opt.value === formData.devType) || null
-                }
+                value={devTypes.find((opt) => opt.value === formData.devType) || null}
                 onChange={(e, newValue) => {
                   setFormData((prev) => ({
                     ...prev,
                     devType: newValue ? newValue.value : "",
-                  }));
+                  }))
                 }}
                 renderInput={(params) => (
                   <TextField
@@ -276,7 +273,6 @@ export default function UserCreate() {
                     error={!!errors.devType}
                     helperText={errors.devType}
                     required
-                    margin="normal"
                     fullWidth
                   />
                 )}
@@ -288,13 +284,31 @@ export default function UserCreate() {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2, py: 1.5 }}
+            sx={{
+              mt: 4,
+              py: 1.5,
+              fontWeight: "bold",
+              fontSize: "1rem",
+              background: "linear-gradient(45deg, #42a5f5, #1e88e5)",
+            }}
             disabled={isSubmitting}
           >
             {isSubmitting ? "Creating..." : "Create Account"}
           </Button>
         </Box>
       </Paper>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        TransitionComponent={Slide}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
-  );
+  )
 }
