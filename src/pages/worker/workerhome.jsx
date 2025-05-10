@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Delete } from '@mui/icons-material';
 import {
   AppBar, Avatar, Box, Button, Container, Grid, IconButton, InputAdornment,
   Paper, TextField, Toolbar, Typography, Autocomplete, CircularProgress, Divider
