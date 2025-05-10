@@ -169,7 +169,7 @@ const Sidebarmain = () => {
         {text: "Task List", path: "/admin/list" },
         { text: "Create Tasks", path: "/admin/create" },
         { text: "Manage Tasks", path: "/admin/manage" },
-        { text: "User Management", path: "/admin/userManagement" },
+       // { text: "User Management", path: "/admin/userManagement" },
         
 
       ],

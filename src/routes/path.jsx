@@ -22,7 +22,7 @@ const MyTaskOverview = lazy(() => import("../pages/myTask/overview"));
 const AdminList = lazy(() => import("../pages/admin/list"));
 const AdminCreate = lazy(() => import("../pages/admin/create"));
 const AdminManage = lazy(() => import("../pages/admin/manage"));
-const AdminuserManagement = lazy(() => import("../pages/admin/userManagement"));
+// const AdminuserManagement = lazy(() => import("../pages/admin/userManagement"));
 const AdminHome = lazy(() => import("../pages/admin/adminHome"));
 
 
@@ -95,7 +95,7 @@ export default function Paths() {
           <Route path="/admin/list" element={<AdminList />} />
           <Route path="/admin/create" element={<AdminCreate />} />
           <Route path="/admin/manage" element={<AdminManage />} />
-          <Route path="/admin/userManagement" element={<AdminuserManagement />} />
+         {/*<Route path="/admin/userManagement" element={<AdminuserManagement />} />*/}
           <Route path="/admin/adminHome" element={<AdminHome />} />
 
           {/* User Routes */}
