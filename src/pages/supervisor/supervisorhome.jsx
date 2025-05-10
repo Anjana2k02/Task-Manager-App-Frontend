@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Box,
   Container,
@@ -56,6 +56,7 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
 } from "recharts"
+import { enpoints, getFetcher } from "../../utils/axios"
 
 // Enhanced Styled Components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -465,26 +466,42 @@ const recentActivities = [
 ]
 
 // Chart data
-const pieData = [
-  { name: "Completed", value: 24, color: "#10b981" },
-  { name: "In Progress", value: 12, color: "#f59e0b" },
-  { name: "Not Started", value: 8, color: "#ef4444" },
-]
+// const pieData = [
+//   { name: "Completed", value: allTasks, color: "#10b981" },
+//   { name: "In Progress", value: completedTasks, color: "#f59e0b" },
+//   { name: "Not Started", value: incompletedTasks, color: "#ef4444" },
+// ]
+
 
 const areaData = [
   { name: "Jan", completed: 4, inProgress: 3, notStarted: 2 },
   { name: "Feb", completed: 6, inProgress: 4, notStarted: 3 },
   { name: "Mar", completed: 8, inProgress: 5, notStarted: 2 },
-  { name: "Apr", completed: 10, inProgress: 6, notStarted: 3 },
+  { name: "Apr", completed: 21, inProgress: 3, notStarted: 0 },
   { name: "May", completed: 12, inProgress: 7, notStarted: 4 },
   { name: "Jun", completed: 16, inProgress: 8, notStarted: 3 },
-  { name: "Jul", completed: 20, inProgress: 10, notStarted: 4 },
-  { name: "Aug", completed: 24, inProgress: 12, notStarted: 8 },
+  { name: "Jul", completed: 25, inProgress: 6, notStarted: 4 },
+  { name: "Aug", completed: 24, inProgress: 3, notStarted: 0 },
 ]
 
 const DashboardContent = () => {
   const [tabValue, setTabValue] = useState(0)
   const [filterAnchorEl, setFilterAnchorEl] = useState(null)
+  // tasks counts
+  const [allTasks, setAllTasks] = useState();
+  const [completedTasks, setCompletedTasks] = useState();
+  const [incompletedTasks, setIncompletedTasks] = useState();
+
+  //advanced filter
+  const [pendingTaskCount, setPendingTaskCount] = useState();
+  const [developpingTaskCount, setDevelopingTaskCount] = useState();
+  const [testingTaskCount, setTestingTaskCount] = useState();
+  const [QACompletedTaskCount, setQacompletedTaskCount] = useState();
+
+  // fetch user details
+  const userName = localStorage.getItem("userName");
+  
+
   const [starredProjects, setStarredProjects] = useState(
     projects.reduce((acc, project, index) => {
       acc[index] = project.starred || false
@@ -514,6 +531,11 @@ const DashboardContent = () => {
     }))
   }
 
+  const pieData = [
+    { name: "Completed", value: completedTasks, color: "#10b981" },
+    { name: "In Progress", value: incompletedTasks, color: "#f59e0b" },
+    { name: "Not Started", value: allTasks, color: "#ef4444" },
+  ];
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
       case "high":
@@ -551,6 +573,65 @@ const DashboardContent = () => {
     }
   }
 
+  useEffect(() => {
+    const fetchTaskCounts = async () => {
+      try {
+        const [all, completed, incompleted] = await Promise.all([
+          getFetcher(enpoints.task.allTaskCount),
+          getFetcher(enpoints.task.completeTaskCount),
+          getFetcher(enpoints.task.incompleteTaskCount),
+        ]);
+
+        setAllTasks(all);
+        setCompletedTasks(completed);
+        setIncompletedTasks(incompleted);
+
+        console.log("All tasks count:", all);
+        console.log("Completed tasks count:", completed);
+        console.log("Incompleted tasks count:", incompleted);
+
+      } catch (error) {
+        console.error("Error fetching task counts:", error);
+      }
+    };
+
+    fetchTaskCounts();
+  }, []);
+
+
+  useEffect(() => {
+  const fetchTaskPhaseCounts = async () => {
+    try {
+      const [
+        pending,
+        developing,
+        testing,
+        qaCompleted
+      ] = await Promise.all([
+        getFetcher(enpoints.task.pendingTaskCount),
+        getFetcher(enpoints.task.developpingTaskCount),
+        getFetcher(enpoints.task.testingTaskCount),
+        getFetcher(enpoints.task.QACompletedTaskCount)
+      ]);
+
+       setPendingTaskCount(pending);
+      setDevelopingTaskCount(developing);
+     setTestingTaskCount(testing);
+      setQacompletedTaskCount(qaCompleted);
+
+      console.log("Pending tasks:", pending);
+      console.log("Developing tasks:", developing);
+      console.log("Testing tasks:", testing);
+      console.log("QA Completed tasks:", qaCompleted);
+    } catch (error) {
+      console.error("Error fetching phase task counts:", error);
+    }
+  };
+
+  fetchTaskPhaseCounts();
+}, []);
+
+
   return (
     <Container maxWidth="xl">
       {/* Welcome Banner */}
@@ -558,7 +639,8 @@ const DashboardContent = () => {
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={7}>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              Welcome back, seviii!
+              {/* fkjqekjf */}
+              Welcome back, {userName || 'supervisor'} !   
             </Typography>
             <Typography variant="body1" sx={{ opacity: 0.9, mb: 2 }}>
               You have 5 tasks due today and 3 new messages. Your team is making good progress!
@@ -586,7 +668,7 @@ const DashboardContent = () => {
           <Grid item xs={12} md={5} sx={{ display: { xs: "none", md: "block" } }}>
             <Box sx={{ position: "relative", height: 180 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart width={400} height={300}>
                   <Pie
                     data={pieData}
                     cx="50%"
@@ -601,6 +683,7 @@ const DashboardContent = () => {
                     ))}
                   </Pie>
                 </PieChart>
+
               </ResponsiveContainer>
               <Box
                 sx={{
@@ -612,7 +695,7 @@ const DashboardContent = () => {
                 }}
               >
                 <Typography variant="h4" fontWeight="bold">
-                  44
+                  {allTasks || '-'} 
                 </Typography>
                 <Typography variant="body2">Tasks</Typography>
               </Box>
@@ -630,10 +713,10 @@ const DashboardContent = () => {
             </IconContainer>
             <Box>
               <Typography variant="body2" color="text.secondary">
-                Active Projects
+                Completed Tasks
               </Typography>
               <Typography variant="h4" fontWeight="bold">
-                12
+                {completedTasks || '-'}
               </Typography>
               <Typography
                 variant="caption"
@@ -652,10 +735,10 @@ const DashboardContent = () => {
             </IconContainer>
             <Box>
               <Typography variant="body2" color="text.secondary">
-                Tasks Due
+                In Progress
               </Typography>
               <Typography variant="h4" fontWeight="bold">
-                5
+                {incompletedTasks || '-'}
               </Typography>
               <Typography variant="caption" color="error.main" sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
                 <Bolt sx={{ fontSize: 14, mr: 0.5 }} /> Due today
@@ -663,12 +746,36 @@ const DashboardContent = () => {
             </Box>
           </StatsCard>
         </Grid>
+
         <Grid item xs={12} sm={6} md={3}>
+          <StatsCard elevation={0} color="warning">
+            <IconContainer color="warning">
+              <CheckCircle fontSize="medium" />
+            </IconContainer>
+            <Box>
+              <Typography variant="body2" color="text.secondary">
+                Pending
+              </Typography>
+              <Typography variant="h4" fontWeight="bold">
+                {pendingTaskCount || '-'}
+              </Typography>
+              <Typography
+                variant="caption"
+                color="success.main"
+                sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
+              >
+                <Bolt sx={{ fontSize: 14, mr: 0.5 }} /> +8 this month
+              </Typography>
+            </Box>
+          </StatsCard>
+        </Grid>
+                <Grid item xs={12} sm={6} md={3}>
           <StatsCard elevation={0} color="success">
             <IconContainer color="success">
               <People fontSize="medium" />
             </IconContainer>
             <Box>
+              {/* // should change */}
               <Typography variant="body2" color="text.secondary">
                 Team Members
               </Typography>
@@ -685,32 +792,10 @@ const DashboardContent = () => {
             </Box>
           </StatsCard>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatsCard elevation={0} color="warning">
-            <IconContainer color="warning">
-              <CheckCircle fontSize="medium" />
-            </IconContainer>
-            <Box>
-              <Typography variant="body2" color="text.secondary">
-                Completed
-              </Typography>
-              <Typography variant="h4" fontWeight="bold">
-                24
-              </Typography>
-              <Typography
-                variant="caption"
-                color="success.main"
-                sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
-              >
-                <Bolt sx={{ fontSize: 14, mr: 0.5 }} /> +8 this month
-              </Typography>
-            </Box>
-          </StatsCard>
-        </Grid>
       </Grid>
 
       {/* Project Progress Chart */}
-      <ChartCard sx={{ mb: 4 }}>
+      <ChartCard sx={{ mb: 4 , mt: 12}}>
         <CardHeader
           title={
             <Typography variant="h6" fontWeight="bold">
