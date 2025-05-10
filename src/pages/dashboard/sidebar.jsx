@@ -100,7 +100,7 @@ const Sidebarmain = () => {
       submenu: [
         { text: "Worker Profile", path: "/worker/workerprofile" },
         { text: "Workers", path: "/worker/list" },
-        { text: "Create", path: "/worker/create" },
+        { text: "Create Worker", path: "/worker/create" },
         { text: "Worker Home", path: "/worker/workerhome" },
         { text: "Manage", path: "/worker/manage" },
       ],
