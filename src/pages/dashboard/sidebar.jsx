@@ -60,7 +60,7 @@ const Sidebarmain = () => {
   const colors = {
     dashboard: "#3498db", // Light blue (matching header)
     user: "#2980b9", // Darker blue
-    worker: "#9b59b6", // Purple
+    worker: "#D50B8B", // Purple
     tasks: "#1abc9c", // Teal
     taskDividing: "#27ae60", // Green
     supervisor: "#e74c3c", // Red
@@ -100,10 +100,9 @@ const Sidebarmain = () => {
       submenu: [
         { text: "Worker Profile", path: "/worker/workerprofile" },
         { text: "Workers", path: "/worker/list" },
-        { text: "Create", path: "/worker/create" },
+        { text: "Create Worker", path: "/worker/create" },
         { text: "Worker Home", path: "/worker/workerhome" },
         { text: "Manage", path: "/worker/manage" },
-        { text: "Worker Tasks", path: "/worker/tasklist" },
       ],
     },
     {
