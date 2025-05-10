@@ -7,7 +7,7 @@ import {
 import { Edit, Delete } from '@mui/icons-material';
 import { getFetcher, deleteFetcher, putFetcher, enpoints } from '../../utils/axios';
 
-const ProjectOverview = () => {
+const AdminTable = () => {
   const [projects, setProjects] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -129,4 +129,4 @@ const ProjectOverview = () => {
   );
 };
 
-export default ProjectOverview;
+export default AdminTable;

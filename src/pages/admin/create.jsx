@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   TextField,
@@ -6,242 +6,265 @@ import {
   Typography,
   Container,
   Paper,
-  Grid,
+  InputAdornment,
+  IconButton,
+  Autocomplete,
+  useTheme,
   MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
-  Snackbar,
-  Alert,
-  Slide,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { AssignmentTurnedIn } from "@mui/icons-material";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { enpoints, postFetcher } from "../../utils/axios";
 
-// ✅ Yup validation schema
-const schema = yup.object().shape({
-  projectTitle: yup.string().required("Project title is required"),
-  description: yup.string().required("Description is required"),
-  startDate: yup.date().required("Start date is required"),
-  dueDate: yup
-    .date()
-    .min(yup.ref("startDate"), "Due date must be after start date")
-    .required("Due date is required"),
-  priority: yup
-    .number()
-    .typeError("Priority must be selected")
-    .oneOf([1, 2, 3], "Select a valid priority")
-    .required("Priority is required"),
-  attachment: yup
-    .mixed()
-    .test("fileSize", "File size is too large", (value) => {
-      return !value || (value && value.size <= 5 * 1024 * 1024); // 5MB limit
-    })
-    .test("fileType", "Unsupported file format", (value) => {
-      return (
-        !value ||
-        (value &&
-          ["image/jpeg", "image/png", "application/pdf"].includes(value.type))
-      );
-    }),
-});
+export default function TaskCreate() {
+  const theme = useTheme();
 
-export default function ProjectCreate() {
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-    setError,
-  } = useForm({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      projectTitle: "",
-      description: "",
-      startDate: "",
-      dueDate: "",
-      priority: "",
-      attachment: null,
-    },
+  const [formData, setFormData] = useState({
+    taskTitle: "",
+    description: "",
+    startDate: "",
+    dueDate: "",
+    priority: "",
+    attachment: null,
   });
 
-  const onSubmit = async (data) => {
-    const formData = new FormData();
-    formData.append("projectTitle", data.projectTitle);
-    formData.append("description", data.description);
-    formData.append("startDate", data.startDate);
-    formData.append("dueDate", data.dueDate);
-    formData.append("priority", data.priority);
-    if (data.attachment) {
-      formData.append("attachment", data.attachment[0]);
-    }
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
-    try {
-      await postFetcher(enpoints.project.create, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      reset();
-      setSnackbar({
-        open: true,
-        message: "Project created successfully!",
-        severity: "success",
-      });
-    } catch (error) {
-      console.error("API Error:", error);
-      setSnackbar({
-        open: true,
-        message: "Failed to create project. Please try again.",
-        severity: "error",
-      });
-      setError("apiError", { message: "Failed to create project" });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: null,
+      }));
     }
   };
 
-  const handleCloseSnackbar = (_, reason) => {
-    if (reason === "clickaway") return;
-    setSnackbar({ ...snackbar, open: false });
+  const handleFileChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      attachment: e.target.files[0],
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.taskTitle.trim())
+      newErrors.taskTitle = "Task title is required";
+    if (!formData.description.trim())
+      newErrors.description = "Description is required";
+    if (!formData.startDate) newErrors.startDate = "Start date is required";
+    if (!formData.dueDate) newErrors.dueDate = "Due date is required";
+    if (!formData.priority) newErrors.priority = "Priority is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    setSuccessMessage("");
+
+    try {
+      const payload = new FormData();
+      payload.append("taskTitle", formData.taskTitle);
+      payload.append("description", formData.description);
+      payload.append("startDate", formData.startDate);
+      payload.append("dueDate", formData.dueDate);
+      payload.append("priority", formData.priority);
+      if (formData.attachment) {
+        payload.append("attachment", formData.attachment);
+      }
+
+      const response = await postFetcher(enpoints.task.create, payload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      console.log("Task created:", response);
+      setSuccessMessage("Task created successfully!");
+
+      setFormData({
+        taskTitle: "",
+        description: "",
+        startDate: "",
+        dueDate: "",
+        priority: "",
+        attachment: null,
+      });
+    } catch (err) {
+      console.error("Error creating task:", err);
+      setErrors({ apiError: "Failed to create task. Try again." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <Container maxWidth="sm" sx={{ pt: 4 }}>
-      <Paper
-        elevation={6}
-        sx={{
-          p: 4,
-          borderRadius: "12px",
-          border: "2px solid #2196f3",
-          background: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
-          transition: "0.3s",
-          "&:hover": { boxShadow: 8 },
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
-          <AssignmentTurnedIn color="primary" sx={{ fontSize: 32 }} />
-          <Typography variant="h5" fontWeight={600} color="primary.dark">
-            Create New Project
-          </Typography>
-        </Box>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(to right, #2193b0, #6dd5ed)",
+        py: 6,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Container maxWidth="md">
+        <Paper
+          elevation={6}
+          sx={{
+            p: 5,
+            borderRadius: 4,
+            backgroundColor: "#ffffffdd",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
+            <AssignmentTurnedIn color="primary" />
+            <Typography variant="h4" fontWeight="bold">
+              Create Task
+            </Typography>
+          </Box>
 
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                label="Project Title"
-                fullWidth
-                required
-                {...register("projectTitle")}
-                error={!!errors.projectTitle}
-                helperText={errors.projectTitle?.message}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Description"
-                multiline
-                rows={4}
-                fullWidth
-                required
-                {...register("description")}
-                error={!!errors.description}
-                helperText={errors.description?.message}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Start Date"
-                type="date"
-                fullWidth
-                required
-                InputLabelProps={{ shrink: true }}
-                {...register("startDate")}
-                error={!!errors.startDate}
-                helperText={errors.startDate?.message}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Due Date"
-                type="date"
-                fullWidth
-                required
-                InputLabelProps={{ shrink: true }}
-                {...register("dueDate")}
-                error={!!errors.dueDate}
-                helperText={errors.dueDate?.message}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl fullWidth required error={!!errors.priority}>
-                <InputLabel id="priority-label">Priority</InputLabel>
-                <Select
-                  labelId="priority-label"
-                  label="Priority"
-                  defaultValue=""
-                  {...register("priority")}
-                >
-                  <MenuItem value={1}>🔥 Critical</MenuItem>
-                  <MenuItem value={2}>⚠️ High</MenuItem>
-                  <MenuItem value={3}>✅ Standard</MenuItem>
-                </Select>
-                <Typography variant="caption" color="error">
-                  {errors.priority?.message}
-                </Typography>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                variant="outlined"
-                component="label"
-                fullWidth
-                sx={{ mt: 2 }}
-              >
-                Upload Attachment
-                <input
-                  type="file"
-                  hidden
-                  {...register("attachment")}
+          {successMessage && (
+            <Typography color="success.main" sx={{ mb: 2 }}>
+              {successMessage}
+            </Typography>
+          )}
+          {errors.apiError && (
+            <Typography color="error.main" sx={{ mb: 2 }}>
+              {errors.apiError}
+            </Typography>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit} noValidate>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <TextField
+                  name="taskTitle"
+                  label="Task Title"
+                  value={formData.taskTitle}
+                  onChange={handleChange}
+                  error={!!errors.taskTitle}
+                  helperText={errors.taskTitle}
+                  fullWidth
+                  required
                 />
-              </Button>
-              <Typography variant="caption" color="error">
-                {errors.attachment?.message}
-              </Typography>
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  multiline
+                  rows={4}
+                  value={formData.description}
+                  onChange={handleChange}
+                  error={!!errors.description}
+                  helperText={errors.description}
+                  fullWidth
+                  required
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="startDate"
+                  label="Start Date"
+                  type="date"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  error={!!errors.startDate}
+                  helperText={errors.startDate}
+                  fullWidth
+                  required
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="dueDate"
+                  label="Due Date"
+                  type="date"
+                  value={formData.dueDate}
+                  onChange={handleChange}
+                  error={!!errors.dueDate}
+                  helperText={errors.dueDate}
+                  fullWidth
+                  required
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  name="priority"
+                  label="Priority"
+                  select
+                  value={formData.priority}
+                  onChange={handleChange}
+                  error={!!errors.priority}
+                  helperText={errors.priority}
+                  fullWidth
+                  required
+                >
+                  <MenuItem value="1">🔥 Critical</MenuItem>
+                  <MenuItem value="2">⚠️ High</MenuItem>
+                  <MenuItem value="3">✅ Standard</MenuItem>
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  fullWidth
+                  sx={{ mt: 2 }}
+                >
+                  Upload Attachment
+                  <input
+                    type="file"
+                    hidden
+                    onChange={handleFileChange}
+                  />
+                </Button>
+                {formData.attachment && (
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Selected File: {formData.attachment.name}
+                  </Typography>
+                )}
+              </Grid>
             </Grid>
-          </Grid>
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{
-              mt: 4,
-              py: 1.5,
-              fontWeight: "bold",
-              fontSize: "1rem",
-              background: "linear-gradient(45deg, #42a5f5, #1e88e5)",
-            }}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Creating..." : "Create Project"}
-          </Button>
-        </Box>
-      </Paper>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={handleCloseSnackbar}
-        TransitionComponent={Slide}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Container>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{
+                mt: 4,
+                py: 1.5,
+                background: "linear-gradient(to right, #2193b0, #6dd5ed)",
+                fontWeight: "bold",
+                fontSize: "1rem",
+              }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating..." : "Create Task"}
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
