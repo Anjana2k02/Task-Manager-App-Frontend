@@ -114,7 +114,7 @@ const Sidebarmain = () => {
       ],
     } : null,
 
-    {
+    userRole === "admin"  || userRole === "worker" ? {
       text: "My Tasks",
       icon: <TaskIcon />,
       hasSubmenu: true,
@@ -124,7 +124,7 @@ const Sidebarmain = () => {
         { text: "All Tasks", path: "/task/my-task-list" },
         // { text: "Task Overview", path: "/task/my-task-overview" },
       ],
-    },
+    } : null,
 
     userRole === "admin" || userRole === "supervisor" ? {
       text: "Task Dividing",
@@ -139,8 +139,8 @@ const Sidebarmain = () => {
       ],
     } : null,
 
-
-    {
+ 
+    userRole === "admin" || userRole === "supervisor" ? {
       text: "Supervisor",
       icon: <SupervisorIcon />,
       hasSubmenu: true,
@@ -155,9 +155,9 @@ const Sidebarmain = () => {
         { text: "Worker list", path: "/supervisor/workerlist" },
         { text: "Create Supervisor", path: "/supervisor/create" },
         { text: "Manage", path: "/supervisor/manage" },
-       
+    
       ],
-    },
+    } : null,
     
     userRole === "admin" && // Only show this menu if the user role is "admin"
     {

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  TablePagination, Box, Stack, Typography, TextField, Button
+  TablePagination, Box, Stack, Typography, TextField, Button, IconButton, Dialog,
+  DialogTitle, DialogContent, DialogContentText, DialogActions, MenuItem, Select, FormControl, InputLabel
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit'; // <-- UPDATE ADDITION
 import { getFetcher, enpoints, getFetcherPramspdf } from '../../utils/axios';
 
 const theme = createTheme({
@@ -30,6 +33,21 @@ const SupervisorTable = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Delete dialog state
+  const [deleteId, setDeleteId] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+
+  // --- UPDATE ADDITION ---
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [updateData, setUpdateData] = useState({
+    id: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    status: 'Active'
+  });
+  // ------------------------
 
   useEffect(() => {
     const fetchSupervisors = async () => {
@@ -63,6 +81,51 @@ const SupervisorTable = () => {
       console.error("Download error:", error);
     }
   };
+
+  // Delete handlers
+  const handleDeleteClick = (id) => {
+    setDeleteId(id);
+    setOpenDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    // Optionally call your API to delete here
+    setSupervisors(prev => prev.filter(s => s.id !== deleteId));
+    setOpenDialog(false);
+    setDeleteId(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setOpenDialog(false);
+    setDeleteId(null);
+  };
+
+  // --- UPDATE ADDITION ---
+  const handleUpdateClick = (supervisor) => {
+    setUpdateData(supervisor);
+    setUpdateDialogOpen(true);
+  };
+
+  const handleUpdateChange = (e) => {
+    const { name, value } = e.target;
+    setUpdateData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleUpdateSave = async () => {
+    // Optionally call your API to update here
+    setSupervisors(prev =>
+      prev.map(s => s.id === updateData.id ? { ...s, ...updateData } : s)
+    );
+    setUpdateDialogOpen(false);
+  };
+
+  const handleUpdateCancel = () => {
+    setUpdateDialogOpen(false);
+  };
+  // ------------------------
 
   return (
     <ThemeProvider theme={theme}>
@@ -125,6 +188,7 @@ const SupervisorTable = () => {
                   <TableCell><strong>Last Name</strong></TableCell>
                   <TableCell><strong>Email</strong></TableCell>
                   <TableCell><strong>Status</strong></TableCell>
+                  <TableCell align="center"><strong>Action</strong></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -167,6 +231,22 @@ const SupervisorTable = () => {
                           {s.status}
                         </Box>
                       </TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          aria-label="update"
+                          color="primary"
+                          onClick={() => handleUpdateClick(s)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          aria-label="delete"
+                          color="error"
+                          onClick={() => handleDeleteClick(s.id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   ))}
               </TableBody>
@@ -183,6 +263,86 @@ const SupervisorTable = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
             sx={{ mt: 2 }}
           />
+
+          {/* --- DELETE CONFIRMATION DIALOG --- */}
+          <Dialog
+            open={openDialog}
+            onClose={handleDeleteCancel}
+          >
+            <DialogTitle>Delete Supervisor</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to delete this supervisor? This action cannot be undone.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleDeleteCancel} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+          {/* --- END DELETE DIALOG --- */}
+
+          {/* --- UPDATE DIALOG --- */}
+          <Dialog open={updateDialogOpen} onClose={handleUpdateCancel}>
+            <DialogTitle>Update Supervisor</DialogTitle>
+            <DialogContent>
+              <Box component="form" sx={{ mt: 1, minWidth: 300 }}>
+                <TextField
+                  margin="dense"
+                  label="First Name"
+                  name="firstName"
+                  fullWidth
+                  variant="outlined"
+                  value={updateData.firstName}
+                  onChange={handleUpdateChange}
+                />
+                <TextField
+                  margin="dense"
+                  label="Last Name"
+                  name="lastName"
+                  fullWidth
+                  variant="outlined"
+                  value={updateData.lastName}
+                  onChange={handleUpdateChange}
+                />
+                <TextField
+                  margin="dense"
+                  label="Email"
+                  name="email"
+                  fullWidth
+                  variant="outlined"
+                  value={updateData.email}
+                  onChange={handleUpdateChange}
+                />
+                <FormControl fullWidth margin="dense">
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    label="Status"
+                    name="status"
+                    value={updateData.status}
+                    onChange={handleUpdateChange}
+                  >
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Inactive">Inactive</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleUpdateCancel} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateSave} color="primary" variant="contained">
+                Save
+              </Button>
+            </DialogActions>
+          </Dialog>
+          {/* --- END UPDATE DIALOG --- */}
+
         </Paper>
       </Box>
     </ThemeProvider>
