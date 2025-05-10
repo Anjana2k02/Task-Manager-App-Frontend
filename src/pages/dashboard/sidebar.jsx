@@ -149,12 +149,14 @@ const Sidebarmain = () => {
       submenuKey: "supervisors",
       color: colors.supervisor,
       submenu: [
-        { text: "supervisor Home", path: "/supervisor/supervisorhome" },
-        { text: "Create", path: "/supervisor/create" },
-        { text: "Supervisor", path: "/supervisor/list" },
+        { text: "My Dashboard", path: "/supervisor/supervisorhome" },
         { text: "Manage", path: "/supervisor/manage" },
-        { text: "Worker list", path: "/supervisor/workerlist" },
+        { text: "Task Manage", path: "/supervisor/manage-all-task" },
+        // { text: "Create", path: "/supervisor/create" },
         { text: "Worker Create", path: "/worker/create" },
+        { text: "Worker list", path: "/supervisor/workerlist" },
+        { text: "Create Supervisor", path: "/supervisor/create" },
+        { text: "Manage", path: "/supervisor/manage" },
        
       ],
     },

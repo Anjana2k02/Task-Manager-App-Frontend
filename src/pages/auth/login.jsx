@@ -38,14 +38,27 @@ const UserLogin = ({ onLogin }) => {
     }
 
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/login", { email, password })
-      const { id, type } = res.data
+      const res = await axios.post("http://localhost:8080/api/auth/login", { email, password  })
+      const { id, type, name } = res.data
 
       localStorage.setItem("userId", id)
       localStorage.setItem("userType", type)
+      localStorage.setItem("userName", name)
 
-      if (onLogin) onLogin() // 🔥 Tell App to update auth state
-      navigate("/supervisor/list")
+      console.log("Login successful:", res.data);
+      
+
+      if (onLogin) onLogin()
+      if (type === "supervisor") {
+        navigate("/supervisor/supervisorhome")
+      } else if (type === "worker") {
+        navigate("/worker/workerprofile")
+      } else if (type === "admin") {
+        navigate("/supervisor/supervisorhome")
+      } else {
+        setError("Unknown user type. Please contact support.")
+        setShowError(true)
+      }
     } catch (err) {
       setError("Invalid credentials. Please try again.")
       setShowError(true)
