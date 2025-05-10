@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Delete } from '@mui/icons-material';
 import {
   AppBar, Avatar, Box, Button, Container, Grid, IconButton, InputAdornment,
   Paper, TextField, Toolbar, Typography, Autocomplete, CircularProgress, Divider
 } from '@mui/material';
-import { 
+import {
   Search, Notifications, Edit, Save, Close, CheckCircle, Assignment,
-  Person, Email, Public, Mood, Badge, Work, AccountCircle, PhotoCamera, AddAPhoto
+  Person, Email, Public, Mood, Badge, Work, AccountCircle, PhotoCamera
 } from '@mui/icons-material';
 
 const userData = {
@@ -18,7 +19,7 @@ const userData = {
   department: "Engineering",
   pendingTasks: ["Fix login bug"],
   completedTasks: ["Refactor dashboard"],
-  profilePicture: null // Default is null, will use icon instead
+  profilePicture: null
 };
 
 const WorkerHome = () => {
@@ -30,16 +31,15 @@ const WorkerHome = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Modern blue color palette
   const theme = {
     primary: {
-      main: '#2563eb', // Vibrant blue
+      main: '#2563eb',
       light: '#3b82f6',
       dark: '#1d4ed8',
       contrastText: '#ffffff'
     },
     secondary: {
-      main: '#0ea5e9', // Sky blue
+      main: '#0ea5e9',
       light: '#38bdf8',
       dark: '#0284c7'
     },
@@ -86,19 +86,31 @@ const WorkerHome = () => {
 
   const handleEdit = () => {
     setEditMode(true);
-    // Reset preview image to current profile image when entering edit mode
     setPreviewImage(profileImage);
   };
 
   const handleCancel = () => {
     setFormValues({ ...userData });
     setEditMode(false);
-    setPreviewImage(profileImage); // Reset preview to current profile image
+    setPreviewImage(profileImage);
+  };
+
+  const handleDeleteCompletedTask = (index) => {
+    setFormValues((prev) => ({
+      ...prev,
+      completedTasks: prev.completedTasks.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleDeletePendingTask = (index) => {
+    setFormValues((prev) => ({
+      ...prev,
+      pendingTasks: prev.pendingTasks.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSave = () => {
     console.log("Saved Data:", formValues);
-    // Save the new profile image if one was selected
     if (previewImage !== profileImage) {
       setProfileImage(previewImage);
     }
@@ -137,7 +149,6 @@ const WorkerHome = () => {
           minHeight: '100vh',
         }}
       >
-        {/* Top Navigation */}
         <AppBar
           position="static"
           elevation={2}
@@ -147,10 +158,10 @@ const WorkerHome = () => {
           }}
         >
           <Toolbar>
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                flexGrow: 1, 
+            <Typography
+              variant="h6"
+              sx={{
+                flexGrow: 1,
                 fontWeight: '600',
                 color: theme.text.primary
               }}
@@ -187,8 +198,8 @@ const WorkerHome = () => {
                 ),
               }}
             />
-            <IconButton 
-              sx={{ 
+            <IconButton
+              sx={{
                 mr: 2,
                 backgroundColor: theme.background.light,
                 '&:hover': {
@@ -198,10 +209,10 @@ const WorkerHome = () => {
             >
               <Notifications sx={{ color: theme.primary.main }} />
             </IconButton>
-            <Avatar 
+            <Avatar
               src={profileImage}
-              sx={{ 
-                width: 40, 
+              sx={{
+                width: 40,
                 height: 40,
                 border: `2px solid ${theme.primary.light}`,
                 bgcolor: theme.primary.light,
@@ -214,7 +225,6 @@ const WorkerHome = () => {
         </AppBar>
 
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          {/* Task Manager Banner Image */}
           <Paper
             sx={{
               mb: 4,
@@ -225,7 +235,6 @@ const WorkerHome = () => {
               height: 200,
             }}
           >
-            {/* Banner Image */}
             <Box
               sx={{
                 width: '100%',
@@ -239,8 +248,6 @@ const WorkerHome = () => {
                 zIndex: 1,
               }}
             />
-            
-            {/* Overlay with gradient */}
             <Box
               sx={{
                 width: '100%',
@@ -263,8 +270,6 @@ const WorkerHome = () => {
               <Typography variant="subtitle1" sx={{ color: 'white', textAlign: 'center', maxWidth: 600 }}>
                 Organize, prioritize, and complete your tasks efficiently
               </Typography>
-              
-              {/* Task stats indicators */}
               <Box sx={{ display: 'flex', gap: 4, mt: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Assignment sx={{ color: 'white' }} />
@@ -282,9 +287,7 @@ const WorkerHome = () => {
             </Box>
           </Paper>
 
-          {/* Profile Info with Action Buttons */}
           <Grid container spacing={3}>
-            {/* Left side - Profile Card */}
             <Grid item xs={12} md={4}>
               <Paper sx={{ 
                 borderRadius: 3,
@@ -292,7 +295,6 @@ const WorkerHome = () => {
                 height: '100%',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
               }}>
-                {/* Profile Header with Gradient */}
                 <Box sx={{ 
                   background: theme.background.gradient,
                   p: 3,
@@ -301,7 +303,6 @@ const WorkerHome = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                  {/* Hidden file input for profile picture upload */}
                   <input
                     type="file"
                     accept="image/*"
@@ -309,8 +310,6 @@ const WorkerHome = () => {
                     ref={fileInputRef}
                     onChange={handleFileChange}
                   />
-                  
-                  {/* Profile Picture with Edit Overlay */}
                   <Box 
                     sx={{ 
                       position: 'relative',
@@ -332,8 +331,6 @@ const WorkerHome = () => {
                     >
                       {!(editMode ? previewImage : profileImage) && <Person sx={{ fontSize: 60 }} />}
                     </Avatar>
-                    
-                    {/* Edit overlay that appears when in edit mode */}
                     {editMode && (
                       <Box sx={{
                         position: 'absolute',
@@ -356,7 +353,6 @@ const WorkerHome = () => {
                       </Box>
                     )}
                   </Box>
-                  
                   <Typography variant="h5" sx={{ color: 'white', fontWeight: 600, textAlign: 'center' }}>
                     {formValues.firstName} {formValues.lastName}
                   </Typography>
@@ -364,8 +360,6 @@ const WorkerHome = () => {
                     {userData.position}
                   </Typography>
                 </Box>
-                
-                {/* Profile Status */}
                 <Box sx={{ p: 3, bgcolor: 'white' }}>
                   <Box sx={{ 
                     display: 'flex', 
@@ -381,7 +375,6 @@ const WorkerHome = () => {
                       {formValues.status}
                     </Typography>
                   </Box>
-                  
                   {!editMode ? (
                     <Button
                       fullWidth
@@ -444,7 +437,6 @@ const WorkerHome = () => {
               </Paper>
             </Grid>
             
-            {/* Right side - Personal Details */}
             <Grid item xs={12} md={8}>
               <Paper sx={{ 
                 p: 3, 
@@ -458,11 +450,8 @@ const WorkerHome = () => {
                     Personal Information
                   </Typography>
                 </Box>
-                
                 <Divider sx={{ mb: 3 }} />
-                
                 <Grid container spacing={3}>
-                  {/* Personal Info Items */}
                   <Grid item xs={12} md={6}>
                     <Box sx={{ 
                       display: 'flex', 
@@ -499,7 +488,6 @@ const WorkerHome = () => {
                       </Box>
                     </Box>
                   </Grid>
-                  
                   <Grid item xs={12} md={6}>
                     <Box sx={{ 
                       display: 'flex', 
@@ -536,7 +524,6 @@ const WorkerHome = () => {
                       </Box>
                     </Box>
                   </Grid>
-                  
                   <Grid item xs={12} md={6}>
                     <Box sx={{ 
                       display: 'flex', 
@@ -573,7 +560,6 @@ const WorkerHome = () => {
                       </Box>
                     </Box>
                   </Grid>
-                  
                   <Grid item xs={12} md={6}>
                     <Box sx={{ 
                       display: 'flex', 
@@ -635,7 +621,6 @@ const WorkerHome = () => {
                       </Box>
                     </Box>
                   </Grid>
-                  
                   <Grid item xs={12} md={6}>
                     <Box sx={{ 
                       display: 'flex', 
@@ -661,7 +646,6 @@ const WorkerHome = () => {
                       </Box>
                     </Box>
                   </Grid>
-                  
                   <Grid item xs={12} md={6}>
                     <Box sx={{ 
                       display: 'flex', 
@@ -692,7 +676,6 @@ const WorkerHome = () => {
             </Grid>
           </Grid>
 
-          {/* Tasks Section */}
           <Paper sx={{ 
             p: 3, 
             mt: 3,
@@ -706,51 +689,88 @@ const WorkerHome = () => {
               <Grid item xs={12} md={6}>
                 <Box>
                   <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500, color: theme.text.primary }}>
-                    Task Pending
+                    Tasks Pending
                   </Typography>
-                  <Paper 
-                    elevation={0}
-                    sx={{ 
-                      p: 2, 
-                      bgcolor: theme.background.light, 
-                      borderRadius: 2,
-                      border: '1px solid',
-                      borderColor: '#e2e8f0',
-                      borderLeft: '4px solid #f97316', // Orange border for pending tasks
-                    }}
-                  >
+                  {formValues.pendingTasks.length === 0 ? (
                     <Typography variant="body2" sx={{ color: theme.text.secondary }}>
-                      {formValues.pendingTasks[0]}
+                      No pending tasks
                     </Typography>
-                  </Paper>
+                  ) : (
+                    formValues.pendingTasks.map((task, idx) => (
+                      <Paper
+                        key={idx}
+                        elevation={0}
+                        sx={{
+                          p: 2,
+                          bgcolor: theme.background.light,
+                          borderRadius: 2,
+                          border: '1px solid',
+                          borderColor: '#e2e8f0',
+                          borderLeft: '4px solid #f97316',
+                          mb: 1
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Typography variant="body2" sx={{ color: theme.text.secondary }}>
+                            {task}
+                          </Typography>
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => handleDeletePendingTask(idx)}
+                          >
+                            <Delete fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </Paper>
+                    ))
+                  )}
                 </Box>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Box>
                   <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500, color: theme.text.primary }}>
-                    Task Completed
+                    Tasks Completed
                   </Typography>
-                  <Paper 
-                    elevation={0}
-                    sx={{ 
-                      p: 2, 
-                      bgcolor: theme.background.light, 
-                      borderRadius: 2,
-                      border: '1px solid',
-                      borderColor: '#e2e8f0',
-                      borderLeft: '4px solid #10b981', // Green border for completed tasks
-                    }}
-                  >
+                  {formValues.completedTasks.length === 0 ? (
                     <Typography variant="body2" sx={{ color: theme.text.secondary }}>
-                      {formValues.completedTasks[0]}
+                      No completed tasks
                     </Typography>
-                  </Paper>
+                  ) : (
+                    formValues.completedTasks.map((task, idx) => (
+                      <Paper
+                        key={idx}
+                        elevation={0}
+                        sx={{
+                          p: 2,
+                          bgcolor: theme.background.light,
+                          borderRadius: 2,
+                          border: '1px solid',
+                          borderColor: '#e2e8f0',
+                          borderLeft: '4px solid #10b981',
+                          mb: 1
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Typography variant="body2" sx={{ color: theme.text.secondary }}>
+                            {task}
+                          </Typography>
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => handleDeleteCompletedTask(idx)}
+                          >
+                            <Delete fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </Paper>
+                    ))
+                  )}
                 </Box>
               </Grid>
             </Grid>
           </Paper>
 
-          {/* Footer */}
           <Box
             sx={{
               display: 'flex',
