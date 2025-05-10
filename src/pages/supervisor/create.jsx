@@ -20,7 +20,7 @@ import { AssignmentTurnedIn } from "@mui/icons-material";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { enpoints, getFetcher, postFetcher } from "../../utils/axios";
+import { enpoints, getFetcher, postFetcher, putFetcher } from "../../utils/axios";
 
 // ✅ Yup validation schema — includes assignedUser
 const schema = yup.object().shape({
@@ -60,32 +60,47 @@ export default function TaskCreate() {
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [workers, setWorkers] = useState([]); // State to hold the list of users
   const [task, settask] = useState([]); // State to hold the list of tasks
+  const [selectedTask, setSelectedTask] = useState(null); // State to hold the task being updated
+  const userId = localStorage.getItem("userId");
 
   const onSubmit = async (data) => {
     const taskData = {
       ...data,
-      adminId: "Fire123456",
-      progress: 0,
-      userId: data.assignedUser,
-      supervisorId: "",
+      adminId: data.adminId || selectedTask?.adminId,
+      progress: data.progress || selectedTask?.progress || 0,
+      userId: data.assignedUser || selectedTask?.userId,
+      supervisorId: userId,
     };
 
     try {
-      await postFetcher(enpoints.task.create, taskData);
+      if (selectedTask) {
+        // Update task
+        await putFetcher(enpoints.task.update.replace("{id}", selectedTask.id), taskData);
+        setSnackbar({
+          open: true,
+          message: "Task updated successfully!",
+          severity: "success",
+        });
+      }
+      //  else {
+      //   // Create task
+      //   await postFetcher(enpoints.task.create, taskData);
+      //   setSnackbar({
+      //     open: true,
+      //     message: "Task created successfully!",
+      //     severity: "success",
+      //   });
+      // }
       reset();
-      setSnackbar({
-        open: true,
-        message: "Task created successfully!",
-        severity: "success",
-      });
+      setSelectedTask(null); // Clear selected task after update
     } catch (error) {
       console.error("API Error:", error);
       setSnackbar({
         open: true,
-        message: "Failed to create task. Please try again.",
+        message: "Failed to save task. Please try again.",
         severity: "error",
       });
-      setError("apiError", { message: "Failed to create task" });
+      setError("apiError", { message: "Failed to save task" });
     }
   };
 
@@ -111,10 +126,10 @@ export default function TaskCreate() {
     const fetchTasks = async () => {
       try {
         const data = await getFetcher(enpoints.task.viewAll);
-        const filteredData = data.filter(task => task.supervisorId === "");
+        const filteredData = data.filter(task => task.supervisorId === "" || task.supervisorId === "string");
         settask(filteredData)
        // settask(data);
-        console.log('task list', data);
+        console.log('task list', filteredData);
       } catch (error) {
         console.error("Error fetching tasks:", error);
       }
@@ -124,9 +139,12 @@ export default function TaskCreate() {
 
   const handleTaskSelect = (e, selectedTask) => {
     if (selectedTask) {
-      // Set the values for description, dueDate, and other fields based on the selected task
+      setSelectedTask(selectedTask); // Set the selected task for update
+      setValue("title", selectedTask.task);
       setValue("description", selectedTask.description);
-      setValue("dueDate", selectedTask.dueDate); // Populate dueDate field
+      setValue("dueDate", selectedTask.dueDate);
+      setValue("priority", selectedTask.priority);
+      setValue("assignedUser", selectedTask.userId);
     }
   };
 
@@ -147,7 +165,7 @@ export default function TaskCreate() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
             <AssignmentTurnedIn color="primary" sx={{ fontSize: 32 }} /> 
             <Typography variant="h5" fontWeight={600} color="primary.dark">
-              Create New Task
+              Create Task
             </Typography>
           </Box>
 
@@ -164,10 +182,12 @@ export default function TaskCreate() {
                       getOptionLabel={(option) =>
                         option.t_no && option.task ? `${option.t_no} - ${option.task}` : ""
                       }
-                      onChange={(e, value) => {
+                      onChange={(_, value) => {
                         field.onChange(value?.task || "");
+                        setValue("title", value?.task || ""); // Ensure title is updated
                         setValue("description", value?.description || "");
                         setValue("dueDate", value?.dueDate || ""); // Populate dueDate when task is selected
+                        handleTaskSelect(_, value); // Handle task selection
                       }}
                       renderOption={(props, option) => (
                         <li {...props}>
@@ -229,9 +249,9 @@ export default function TaskCreate() {
                     defaultValue=""
                     {...register("priority")}
                   >
-                    <MenuItem value={1}>🔥 Critical</MenuItem>
-                    <MenuItem value={2}>⚠️ High</MenuItem>
-                    <MenuItem value={3}>✅ Standard</MenuItem>
+                    <MenuItem value={1}>Critical</MenuItem>
+                    <MenuItem value={2}>High</MenuItem>
+                    <MenuItem value={3}>Standard</MenuItem>
                   </Select>
                   <Typography variant="caption" color="error">
                     {errors.priority?.message}
@@ -279,7 +299,7 @@ export default function TaskCreate() {
               }}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Creating..." : "Create Task"}
+              {isSubmitting ? "Saving..." : selectedTask ? "Update Task" : "Create Task"}
             </Button>
           </Box>
         </Paper>

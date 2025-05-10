@@ -37,6 +37,8 @@ const Sidebarmain = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
+  const userRole = localStorage.getItem("userType");
+
   const handleToggle = (menu) => {
     setExpandedMenus((prev) => ({
       ...prev,
@@ -73,39 +75,33 @@ const Sidebarmain = () => {
 
   // Menu items with colorful styling
   const menuItems = [
-    {
-      text: "Dashboard",
-      icon: <DashboardIcon />,
-      path: "/admin/dashboard",
-      color: colors.dashboard,
-    },
-    {
-      text: "User",
-      icon: <PersonIcon />,
-      hasSubmenu: true,
-      submenuKey: "users",
-      color: colors.user,
-      submenu: [
-        { text: "Users", path: "/user/list" },
-        { text: "Create", path: "/user/create" },
-        { text: "Manage", path: "/user/manage" },
-      ],
-    },
-    {
-      text: "Worker",
-      icon: <WorkerIcon />,
-      hasSubmenu: true,
-      submenuKey: "workers",
-      color: colors.worker,
-      submenu: [
-        { text: "Worker Profile", path: "/worker/workerprofile" },
-        { text: "Workers", path: "/worker/list" },
-        { text: "Create Worker", path: "/worker/create" },
-        { text: "Worker Home", path: "/worker/workerhome" },
-        { text: "Manage", path: "/worker/manage" },
-      ],
-    },
-    {
+{
+  text: "Dashboard",
+  icon: <DashboardIcon />,
+  path:
+    userRole === "admin"
+      ? "/admin/adminHome"
+      : userRole === "supervisor"
+      ? "/supervisor/supervisorhome"
+      : userRole === "worker"
+      ? "/worker/workerprofile"
+      : "/", 
+  color: colors.dashboard,
+},
+    // {
+    //   text: "User",
+    //   icon: <PersonIcon />,
+    //   hasSubmenu: true,
+    //   submenuKey: "users",
+    //   color: colors.user,
+    //   submenu: [
+    //     { text: "Users", path: "/user/list" },
+    //     { text: "Create", path: "/user/create" },
+    //     { text: "Manage", path: "/user/manage" },
+    //   ],
+    // },
+
+    userRole === "admin" || userRole === "supervisor" ? {
       text: "Tasks",
       icon: <TaskIcon />,
       hasSubmenu: true,
@@ -116,7 +112,7 @@ const Sidebarmain = () => {
         { text: "Create Task", path: "/task/create" },
         { text: "Manage Task", path: "/task/manage" },
       ],
-    },
+    } : null,
 
     {
       text: "My Tasks",
@@ -129,7 +125,8 @@ const Sidebarmain = () => {
         // { text: "Task Overview", path: "/task/my-task-overview" },
       ],
     },
-    {
+
+    userRole === "admin" || userRole === "supervisor" ? {
       text: "Task Dividing",
       icon: <TaskDividingIcon />,
       hasSubmenu: true,
@@ -140,7 +137,9 @@ const Sidebarmain = () => {
         { text: "Create", path: "/taskdi/create" },
         { text: "Manage", path: "/taskdi/manage" },
       ],
-    },
+    } : null,
+
+
     {
       text: "Supervisor",
       icon: <SupervisorIcon />,
@@ -149,7 +148,7 @@ const Sidebarmain = () => {
       color: colors.supervisor,
       submenu: [
         { text: "My Dashboard", path: "/supervisor/supervisorhome" },
-        { text: "Manage", path: "/supervisor/manage" },
+        // { text: "Manage", path: "/supervisor/manage" },
         { text: "Task Manage", path: "/supervisor/manage-all-task" },
         // { text: "Create", path: "/supervisor/create" },
         { text: "Worker Create", path: "/worker/create" },
@@ -159,6 +158,8 @@ const Sidebarmain = () => {
        
       ],
     },
+    
+    userRole === "admin" && // Only show this menu if the user role is "admin"
     {
       text: "Admin",
       icon: <AdminIcon />,
@@ -168,13 +169,29 @@ const Sidebarmain = () => {
       submenu: [
         { text: "Admin Dashboard", path: "/admin/adminHome" },
         { text: "Create Tasks", path: "/admin/create" },
-        {text: "Task List", path: "/admin/list" },
-       // { text: "Manage Tasks", path: "/admin/manage" },
-       // { text: "User Management", path: "/admin/userManagement" },
-        
-
+        { text: "Task List", path: "/admin/list" },
+        { text: "Manage Tasks", path: "/admin/manage" },
+        { text: "User Management", path: "/admin/userManagement" },
       ],
     },
+
+    
+    {
+      text: "Worker",
+      icon: <WorkerIcon />,
+      hasSubmenu: true,
+      submenuKey: "workers",
+      color: colors.worker,
+      submenu: [
+       
+        { text: "Workers", path: "/worker/list" },
+        { text: "Create Worker", path: "/worker/create" },
+        { text: "Worker Home", path: "/worker/workerhome" },
+        { text: "Manage", path: "/worker/manage" },
+        { text: "Worker Profile", path: "/worker/workerprofile" },
+      ],
+    },
+
     {
       text: "Projects",
       icon: <ProjectsIcon />,
@@ -184,7 +201,7 @@ const Sidebarmain = () => {
     {
       text: "Calendar",
       icon: <CalendarIcon />,
-      path: "#",
+      path: "/calender/view",
       badge: "New",
       color: colors.calendar,
     },
@@ -194,7 +211,7 @@ const Sidebarmain = () => {
       path: "#",
       color: colors.documentation,
     },
-  ]
+  ].filter(Boolean)
 
   return (
     <Paper
@@ -309,29 +326,7 @@ const Sidebarmain = () => {
         </List>
       </Box>
 
-      {/* Settings Section */}
-      <Box sx={{ p: 2, borderTop: "1px solid #e9ecef" }}>
-        <ListItemButton
-          sx={{
-            borderRadius: "6px",
-            "&:hover": {
-              backgroundColor: alpha(colors.settings, 0.08),
-            },
-          }}
-        >
-          <ListItemIcon sx={{ color: colors.settings, minWidth: "40px" }}>
-            <SettingsIcon />
-          </ListItemIcon>
-          <ListItemText
-            primary="Settings"
-            sx={{
-              "& .MuiTypography-root": {
-                color: "#495057",
-              },
-            }}
-          />
-        </ListItemButton>
-      </Box>
+
     </Paper>
   )
 }
