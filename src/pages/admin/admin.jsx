@@ -1,0 +1,14 @@
+import React from 'react';
+import AdminTable from './list';
+import { ThemeProvider } from '@emotion/react';
+import customTheme from '../../theme/theme';
+
+export default function Admin() {
+  return (
+    <div>
+      <h1>Task List</h1>
+      <p>View all registered tasks</p>
+      <AdminTable />
+    </div>
+  );
+}

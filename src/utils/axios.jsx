@@ -125,7 +125,7 @@ export const patchExpressionStatusFetcher = async (id, status, config) => {
     
     task: {
       create: "/task/create",
-      update: "/task/update",
+      update: "/task/update/{id}",
       delete: "/task/delete/{id}",
       view: "/task/view/{id}",
       viewAll: "/task/view/all",

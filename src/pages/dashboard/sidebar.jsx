@@ -167,8 +167,13 @@ const Sidebarmain = () => {
       submenuKey: "admin",
       color: colors.admin,
       submenu: [
-        { text: "Settings", path: "/admin/settings" },
-        { text: "Logs", path: "/admin/logs" },
+        { text: "Admin Dashboard", path: "/admin/adminHome" },
+        { text: "Create Tasks", path: "/admin/create" },
+        {text: "Task List", path: "/admin/list" },
+       // { text: "Manage Tasks", path: "/admin/manage" },
+       // { text: "User Management", path: "/admin/userManagement" },
+        
+
       ],
     },
     {
