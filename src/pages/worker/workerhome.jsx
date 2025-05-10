@@ -5,7 +5,8 @@ import {
 } from '@mui/material';
 import { 
   Search, Notifications, Edit, Save, Close, CheckCircle, Assignment,
-  Person, Email, Public, Mood, Badge, Work, AccountCircle, PhotoCamera, AddAPhoto
+  Person, Email, Public, Mood, Badge, Work, AccountCircle, PhotoCamera, AddAPhoto,
+  Delete
 } from '@mui/icons-material';
 
 const userData = {
@@ -16,8 +17,20 @@ const userData = {
   status: "Happy",
   position: "Software Engineer",
   department: "Engineering",
-  pendingTasks: ["Fix login bug"],
-  completedTasks: ["Refactor dashboard"],
+  pendingTasks: [
+    "Fix login bug", 
+    "Implement user authentication", 
+    "Create responsive dashboard", 
+    "Optimize database queries", 
+    "Update API documentation"
+  ],
+  completedTasks: [
+    "Refactor dashboard", 
+    "Fix navigation menu", 
+    "Deploy to production", 
+    "Create user onboarding flow", 
+    "Implement dark mode"
+  ],
   profilePicture: null // Default is null, will use icon instead
 };
 
@@ -105,6 +118,12 @@ const WorkerHome = () => {
     setEditMode(false);
   };
 
+  const handleDelete = () => {
+    console.log("Delete profile requested");
+    // Add your delete logic here
+    alert("Profile deletion requested");
+  };
+
   const handleCountryChange = (event, value) => {
     setFormValues((prev) => ({ ...prev, country: value?.name || "" }));
   };
@@ -135,6 +154,7 @@ const WorkerHome = () => {
         sx={{
           flexGrow: 1,
           minHeight: '100vh',
+          position: 'relative', // For positioning the delete button
         }}
       >
         {/* Top Navigation */}
@@ -708,21 +728,25 @@ const WorkerHome = () => {
                   <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500, color: theme.text.primary }}>
                     Task Pending
                   </Typography>
-                  <Paper 
-                    elevation={0}
-                    sx={{ 
-                      p: 2, 
-                      bgcolor: theme.background.light, 
-                      borderRadius: 2,
-                      border: '1px solid',
-                      borderColor: '#e2e8f0',
-                      borderLeft: '4px solid #f97316', // Orange border for pending tasks
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ color: theme.text.secondary }}>
-                      {formValues.pendingTasks[0]}
-                    </Typography>
-                  </Paper>
+                  {formValues.pendingTasks.map((task, index) => (
+                    <Paper 
+                      key={index}
+                      elevation={0}
+                      sx={{ 
+                        p: 2, 
+                        mb: 2,
+                        bgcolor: theme.background.light, 
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: '#e2e8f0',
+                        borderLeft: '4px solid #f97316', // Orange border for pending tasks
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ color: theme.text.secondary }}>
+                        {task}
+                      </Typography>
+                    </Paper>
+                  ))}
                 </Box>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -730,21 +754,25 @@ const WorkerHome = () => {
                   <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500, color: theme.text.primary }}>
                     Task Completed
                   </Typography>
-                  <Paper 
-                    elevation={0}
-                    sx={{ 
-                      p: 2, 
-                      bgcolor: theme.background.light, 
-                      borderRadius: 2,
-                      border: '1px solid',
-                      borderColor: '#e2e8f0',
-                      borderLeft: '4px solid #10b981', // Green border for completed tasks
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ color: theme.text.secondary }}>
-                      {formValues.completedTasks[0]}
-                    </Typography>
-                  </Paper>
+                  {formValues.completedTasks.map((task, index) => (
+                    <Paper 
+                      key={index}
+                      elevation={0}
+                      sx={{ 
+                        p: 2, 
+                        mb: 2,
+                        bgcolor: theme.background.light, 
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: '#e2e8f0',
+                        borderLeft: '4px solid #10b981', // Green border for completed tasks
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ color: theme.text.secondary }}>
+                        {task}
+                      </Typography>
+                    </Paper>
+                  ))}
                 </Box>
               </Grid>
             </Grid>
@@ -764,6 +792,28 @@ const WorkerHome = () => {
             </Typography>
           </Box>
         </Container>
+
+        {/* Delete Button - Fixed at bottom right */}
+        <Button
+          variant="contained"
+          color="error"
+          startIcon={<Delete />}
+          onClick={handleDelete}
+          sx={{
+            position: 'fixed',
+            bottom: 30,
+            right: 30,
+            borderRadius: '50px',
+            padding: '12px 24px',
+            boxShadow: '0 4px 10px rgba(239, 68, 68, 0.3)',
+            backgroundColor: '#ef4444',
+            '&:hover': {
+              backgroundColor: '#dc2626',
+            }
+          }}
+        >
+          Delete Profile
+        </Button>
       </Box>
     </Box>
   );
