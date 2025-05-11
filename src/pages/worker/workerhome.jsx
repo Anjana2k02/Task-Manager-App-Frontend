@@ -815,28 +815,6 @@ const WorkerHome = () => {
             </Typography>
           </Box>
         </Container>
-
-        {/* Delete Button - Fixed at bottom right */}
-        <Button
-          variant="contained"
-          color="error"
-          startIcon={<Delete />}
-          onClick={handleDelete}
-          sx={{
-            position: 'fixed',
-            bottom: 30,
-            right: 30,
-            borderRadius: '50px',
-            padding: '12px 24px',
-            boxShadow: '0 4px 10px rgba(239, 68, 68, 0.3)',
-            backgroundColor: '#ef4444',
-            '&:hover': {
-              backgroundColor: '#dc2626',
-            }
-          }}
-        >
-          Delete Profile
-        </Button>
       </Box>
     </Box>
   );
